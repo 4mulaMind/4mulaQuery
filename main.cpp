@@ -1,56 +1,37 @@
 #include <iostream>
+#include<common.h>
 #include "pager.h"
 
-void print_row(Row* row) {
-    std::cout << "(" << row->id << ", " << row->username << ", " << row->email << ")" << std::endl;
-}
-
 int main() {
-    Pager db("4mula.db");
-    int choice;
-    uint32_t current_row_count = 0;
-
-    // Startup check: Purana data kitna hai, wahan se ginti shuru karo
-    Row temp_check;
-    while(db.read_row(&temp_check, current_row_count)) {
-        current_row_count++;
-    }
+    Pager db("4mulaQuery.db");
+    uint32_t row_count = 0;
+    
+    // Count existing rows
+    Row temp;
+    while(db.read_row(&temp, row_count)) row_count++;
 
     while (true) {
-        std::cout << "\n4mulaQuery > 1.Insert  2.SelectAll  3.Exit: ";
-        if (!(std::cin >> choice)) break;
+        int choice;
+        std::cout << "\n1. Insert  2. Select All  3. Exit: ";
+        std::cin >> choice;
 
         if (choice == 1) {
             Row row;
-            std::cout << "Enter ID: "; 
-            if (!(std::cin >> row.id)) {
-                std::cout << "Invalid ID!";
-                std::cin.clear(); 
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                continue;
-            }
-
-            // Sab kuch saaf kar do!
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-
-            std::cout << "Enter Name: "; 
-            std::cin.getline(row.username, USERNAME_SIZE); 
-
-            std::cout << "Enter Email: "; 
-            std::cin.getline(row.email, EMAIL_SIZE);
+            std::cout << "ID: "; std::cin >> row.id;
+            std::cin.ignore(1000, '\n'); // Clear buffer
+            std::cout << "User: "; std::cin.getline(row.username, USERNAME_SIZE);
+            std::cout << "Email: "; std::cin.getline(row.email, EMAIL_SIZE);
             
-            db.write_row(&row, current_row_count++);
-            std::cout << "Saved successfully!\n";
-        }
-        else if (choice == 2) {
-            Row temp;
-            uint32_t i = 0;
-            std::cout << "\n--- Database Records ---\n";
-            while (db.read_row(&temp, i++)) {
-                print_row(&temp);
+            db.write_row(&row, row_count++);
+            std::cout << "Saved!";
+        } else if (choice == 2) {
+            Row r;
+            for (uint32_t i = 0; i < row_count; i++) {
+                if (db.read_row(&r, i)) {
+                    std::cout << "ID: " << r.id << " | Name: " << r.username << " | Email: " << r.email << std::endl;
+                }
             }
-        } 
-        else break;
+        } else break;
     }
     return 0;
 }
