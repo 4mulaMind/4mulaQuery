@@ -2,10 +2,10 @@
 #include <string>
 #include "pager.h"
 
-void print_prompt() { std::cout << "4mula > "; }
+void print_prompt() { std::cout << "4mulaQuery > "; }
 
 int main() {
-    Pager db("4mula.db");
+    Pager db("4mulaQuery.db");
     uint32_t row_count = 0;
     
     // Check current row count from file size
@@ -13,7 +13,7 @@ int main() {
     while(db.read_row(&temp, row_count)) row_count++;
 
     std::cout << "Welcome to 4mulaQuery v1.0\n";
-    std::cout << "Connected to 4mula.db (" << row_count << " rows found)\n";
+    std::cout << "Connected to 4mulaQuery.db (" << row_count << " rows found)\n";
 
     std::string input;
     while (true) {
