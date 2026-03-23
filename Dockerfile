@@ -1,8 +1,9 @@
 # Stage 1: Build Java and C++
-FROM maven:3.8.4-openjdk-17 AS build
+# 'maven:3.8.4-openjdk-17' ki jagah ye use karo (Debian based)
+FROM maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /workspace
 
-# g++ install karo taaki Stage 1 mein compilation ho sake
+# Ab apt-get perfect chalega
 RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
 
 COPY . .
@@ -10,20 +11,20 @@ COPY . .
 # 1. Java Build
 RUN cd app && mvn clean package -DskipTests spring-boot:repackage
 
-# 2. C++ Build (Ab g++ mil jayega)
+# 2. C++ Build
 RUN g++ -O3 core/*.cpp -o core/4mulaQuery
 
 # Stage 2: Run the application
 FROM eclipse-temurin:17-jdk-focal
 WORKDIR /app
 
-# Runtime ke liye bhi g++ zaroori ho sakta hai (libraries ke liye)
+# Runtime libraries ke liye g++ yahan bhi zaroori hai
 RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
 
 # JAR copy karo
 COPY --from=build /workspace/app/target/*.jar app.jar
 
-# Naya compiled C++ engine copy karo
+# Compiled C++ engine copy karo
 COPY --from=build /workspace/core ./core
 
 # Permission set karo
