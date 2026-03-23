@@ -1,24 +1,26 @@
 # Stage 1: Build the application
 FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /workspace
-
-# Poora project (4mulaQuery) copy karo
 COPY . .
-
-# FIX 1: 'app' folder ke andar ghus kar maven chalao
 RUN cd app && mvn clean package -DskipTests spring-boot:repackage
 
 # Stage 2: Run the application
 FROM eclipse-temurin:17-jdk-focal
 WORKDIR /app
 
-# g++ install
+# g++ install (Taaki C++ library support mil sake)
 RUN apt-get update && \
     apt-get install -y g++ && \
     rm -rf /var/lib/apt/lists/*
 
-# FIX 2: Sahi path (/workspace/app/target) se jar uthao
+# 1. JAR file copy karo
 COPY --from=build /workspace/app/target/*.jar app.jar
+
+# 2. CORE folder copy karo (Ye step purani file mein missing tha!)
+COPY --from=build /workspace/core ./core
+
+# 3. C++ engine ko permission do (Linux/Render ke liye zaroori hai)
+RUN chmod +x ./core/4mulaQuery
 
 EXPOSE 8080
 

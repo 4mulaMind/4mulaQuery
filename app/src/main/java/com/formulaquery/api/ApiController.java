@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class ApiController {
 
-    // FIX 2: Docker ke hisab se engine path. Dockerfile mein 'core' copy kiya tha na?
-    private static final String ENGINE_PATH = "./core/4mulaQuery"; 
-
+    // Agar Dockerfile mein 'WORKDIR /app' hai, toh ye path ekdum sahi chalega
+    private static final String ENGINE_PATH = "core/4mulaQuery";
+    
     @GetMapping("/all")
     public String getAllData() {
         return executeCommand("select");
