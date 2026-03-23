@@ -12,8 +12,8 @@ public class ApiController {
 
     @GetMapping("/all")
     public String getAllData() {
-        // Engine mein 'display' ya 'select' jo bhi command ho wo likho
-        return executeCommand("display"); 
+        // 'display' ko badal kar 'select' kar do kyunki C++ 'select' samajhta hai
+        return executeCommand("select"); 
     }
 
     @GetMapping("/insert")

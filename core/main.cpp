@@ -26,17 +26,30 @@ int main() {
                 std::cout << "Executed.\n"; 
             }
         } 
+        // ... purana code (insert aur select wala) ...
+
         else if (command == "select" || command == "all") {
+            // Aapka purana select wala logic yahan rahega
+        }
+        else if (command == "search") {
+            uint32_t search_id;
+            ss >> search_id;
             Row r;
+            bool found = false;
             for (uint32_t i = 0; i < row_count; i++) {
-                if (db.read_row(&r, i)) {
-                    // Seedha format rakho taaki HTML table parse kar sake
+                if (db.read_row(&r, i) && r.id == search_id) {
                     std::cout << r.id << " | " << r.username << " | " << r.email << "\n";
+                    found = true;
+                    break;
                 }
             }
+            if(!found) std::cout << "ID " << search_id << " Not Found.\n";
+        }
+        else if (command == "delete") {
+            // Abhi ke liye sirf message de do (Delete logic database file handle karne par depend karta hai)
+            std::cout << "Delete command received. Logic not implemented in B-Tree yet.\n";
         }
         else {
-            // Agar kuch aur type kiya
             std::cout << "Unknown: " << command << "\n";
         }
     }
