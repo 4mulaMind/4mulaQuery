@@ -9,7 +9,7 @@ public class ApiController {
 
     // Agar Dockerfile mein 'WORKDIR /app' hai, toh ye path ekdum sahi chalega
     private static final String ENGINE_PATH = "core/4mulaQuery";
-    
+
     @GetMapping("/all")
     public String getAllData() {
         return executeCommand("select");
@@ -19,6 +19,16 @@ public class ApiController {
     public String insertData(@RequestParam int id, @RequestParam String name, @RequestParam String email) {
         String cmd = "insert " + id + " " + name + " " + email;
         return executeCommand(cmd);
+    }
+
+    @GetMapping("/delete")
+    public String delete(@RequestParam int id) {
+        return runEngine("delete " + id);
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam int id) {
+        return runEngine("search " + id);
     }
 
     private String executeCommand(String cmd) {

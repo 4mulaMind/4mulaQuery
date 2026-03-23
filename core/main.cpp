@@ -1,45 +1,43 @@
 #include <iostream>
 #include <string>
+#include <sstream> // String todne ke liye
 #include "pager.h"
-
-void print_prompt() { std::cout << "4mulaQuery > "; }
 
 int main() {
     Pager db("4mulaQuery.db");
     uint32_t row_count = 0;
-    
-    // Check current row count from file size
     Row temp;
     while(db.read_row(&temp, row_count)) row_count++;
 
-    std::cout << "Welcome to 4mulaQuery v1.0\n";
-    std::cout << "Connected to 4mulaQuery.db (" << row_count << " rows found)\n";
+    std::string line;
+    // Har line ko read karo jo Java se aa rahi hai
+    while (std::getline(std::cin, line)) {
+        if (line == "exit") break;
 
-    std::string input;
-    while (true) {
-        print_prompt();
-        std::getline(std::cin, input);
+        std::stringstream ss(line);
+        std::string command;
+        ss >> command; // Pehla word (insert/select/delete)
 
-        if (input == "exit") {
-            break;
-        } else if (input == "insert") {
+        if (command == "insert") {
             Row row;
-            std::cout << "ID: "; std::cin >> row.id;
-            std::cin.ignore(USERNAME_SIZE, '\n'); 
-            std::cout << "User: "; std::cin.getline(row.username, USERNAME_SIZE);
-            std::cout << "Email: "; std::cin.getline(row.email, EMAIL_SIZE);
-            
-            db.write_row(&row, row_count++);
-            std::cout << "Executed.\n";
-        } else if (input == "select") {
+            // ss se baaki ka data nikal lo: ID, User, Email
+            if (ss >> row.id >> row.username >> row.email) {
+                db.write_row(&row, row_count++);
+                std::cout << "Executed.\n"; 
+            }
+        } 
+        else if (command == "select" || command == "all") {
             Row r;
             for (uint32_t i = 0; i < row_count; i++) {
                 if (db.read_row(&r, i)) {
-                    std::cout << "(" << r.id << ", " << r.username << ", " << r.email << ")\n";
+                    // Seedha format rakho taaki HTML table parse kar sake
+                    std::cout << r.id << " | " << r.username << " | " << r.email << "\n";
                 }
             }
-        } else {
-            std::cout << "Unrecognized command: " << input << "\n";
+        }
+        else {
+            // Agar kuch aur type kiya
+            std::cout << "Unknown: " << command << "\n";
         }
     }
     return 0;
