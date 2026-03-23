@@ -8,7 +8,7 @@ RUN cd app && mvn clean package -DskipTests spring-boot:repackage
 FROM eclipse-temurin:17-jdk-focal
 WORKDIR /app
 
-# g++ install (Taaki C++ library support mil sake)
+# g++ install
 RUN apt-get update && \
     apt-get install -y g++ && \
     rm -rf /var/lib/apt/lists/*
@@ -16,7 +16,7 @@ RUN apt-get update && \
 # 1. JAR file copy karo
 COPY --from=build /workspace/app/target/*.jar app.jar
 
-# 2. CORE folder copy karo (Ye step purani file mein missing tha!)
+# 2. CORE folder copy karo (Ye line missing thi!)
 COPY --from=build /workspace/core ./core
 
 # 3. C++ engine ko permission do (Linux/Render ke liye zaroori hai)
