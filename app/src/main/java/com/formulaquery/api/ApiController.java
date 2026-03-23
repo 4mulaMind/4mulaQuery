@@ -7,61 +7,68 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class ApiController {
 
-    // Engine ka path jo Dockerfile mein set kiya hai
+    // Engine ka binary path
     private static final String ENGINE_PATH = "core/4mulaQuery";
 
     @GetMapping("/all")
     public String getAllData() {
-        // 'display' ko badal kar 'select' kar do kyunki C++ 'select' samajhta hai
-        return executeCommand("select"); 
+        // C++ engine ab getline(ss, cmd, ',') use kar raha hai
+        // Isliye 'all,' bhej rahe hain (comma zaroori hai)
+        return executeCommand("all,"); 
     }
 
     @GetMapping("/insert")
     public String insertData(@RequestParam int id, @RequestParam String name, @RequestParam String email) {
-        String cmd = "insert " + id + " " + name + " " + email;
+        // ⭐ BIG FIX: Spaces ko Comma (,) se replace kiya
+        // Format: insert,1,Abdul Qadir,email@test.com
+        String cmd = "insert," + id + "," + name + "," + email;
         return executeCommand(cmd);
     }
 
-    // FIX: Yahan pehle 'runEngine' likha tha, maine use 'executeCommand' kar diya hai
     @GetMapping("/delete")
     public String delete(@RequestParam int id) {
-        return executeCommand("delete " + id);
+        // Delete ke liye bhi comma format: delete,1
+        return executeCommand("delete," + id);
     }
 
-    // FIX: Yahan bhi 'runEngine' ki jagah 'executeCommand' kar diya hai
     @GetMapping("/search")
     public String search(@RequestParam int id) {
-        return executeCommand("search " + id);
+        // Search ke liye: search,1
+        return executeCommand("search," + id);
     }
 
-    // ⭐ Ye wo MAIN function hai jise Java dhoond raha tha
+    // ⭐ MAIN function: Java ko C++ se jod raha hai
     private String executeCommand(String cmd) {
         StringBuilder output = new StringBuilder();
         try {
-            // C++ engine binary ko start karna
+            // C++ Engine process start karna
             ProcessBuilder pb = new ProcessBuilder(ENGINE_PATH);
             pb.redirectErrorStream(true); 
             Process process = pb.start();
             
-            // Engine ko command bhejna
+            // Engine ke 'stdin' mein command likhna
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-            writer.write(cmd + "\nexit\n"); // Command ke baad engine band karne ke liye exit
+            
+            // Command ke baad 'exit' bhej rahe hain taaki engine kaam karke band ho jaye
+            writer.write(cmd + "\nexit\n"); 
             writer.flush();
             writer.close();
 
-            // Engine se output wapas lena
+            // Engine ka 'cout' (output) read karna
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
+                // Faltu ki empty lines ya "Executed" message ko filter karna
+                if (!line.trim().isEmpty() && !line.contains("Executed")) {
                     output.append(line).append("\n");
                 }
             }
             process.waitFor(); 
         } catch (Exception e) {
-            // Agar file nahi mili ya engine nahi chala toh yahan error dikhega
             return "Error calling C++ engine: " + e.getMessage();
         }
-        return output.length() > 0 ? output.toString() : "No response from engine.";
+        
+        // Output clean karke frontend ko dena
+        return output.length() > 0 ? output.toString() : "Success (Database updated)";
     }
 }

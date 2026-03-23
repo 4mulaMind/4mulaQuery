@@ -1,11 +1,18 @@
+<!-- @format -->
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4mulaQuery | Database Engine</title>
+
+    <link rel="icon" type="image/jpeg" href="/Logo.jpg" />
+    <link rel="shortcut icon" href="/Logo.jpg" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/Logo.jpg" />
+
     <style>
-      /* CSS Section: Navy Blue, Gold, aur Beige ka combination professional look ke liye */
+      /* CSS Section: Navy Blue (#001f3f), Gold (#d4af37), and Beige (#f5f5dc) */
       body {
         font-family: "Poppins", sans-serif;
         background-color: #f5f5dc;
@@ -102,12 +109,7 @@
   <body>
     <div class="container">
       <div class="header-section">
-        <img
-          src="/Logo.jpg"
-          alt="4mulaQuery Logo"
-          class="header-logo"
-          onerror="this.style.display = 'none'"
-        />
+        <img src="/Logo.jpg" alt="4mulaQuery Logo" class="header-logo" />
         <h1>4mula<span>Query</span></h1>
         <div id="dynamic-text"></div>
       </div>
@@ -119,10 +121,14 @@
           <input type="text" id="name" placeholder="Name (for Insert)" />
           <input type="email" id="email" placeholder="Email (for Insert)" />
         </div>
-        <div class="input-group" style="margin-top: 15px;">
+        <div class="input-group" style="margin-top: 15px">
           <button onclick="operate('insert')">Insert Record</button>
-          <button onclick="operate('search')" style="background-color: #2980b9;">Search ID</button>
-          <button onclick="operate('delete')" style="background-color: #c0392b;">Delete ID</button>
+          <button onclick="operate('search')" style="background-color: #2980b9">
+            Search ID
+          </button>
+          <button onclick="operate('delete')" style="background-color: #c0392b">
+            Delete ID
+          </button>
         </div>
       </div>
 
@@ -140,18 +146,22 @@
     </div>
 
     <script>
-      // 1. Typing Effect Logic (UI ko Sundar banane ke liye)
+      // 1. Typing Effect Logic
       const phrases = [
         "Fastest C++ B-Tree Engine",
         "Developed by Abdul Qadir",
         "Spring Boot + Docker Integrated",
       ];
-      let pIdx = 0, cIdx = 0, isDel = false;
+      let pIdx = 0,
+        cIdx = 0,
+        isDel = false;
 
       function type() {
         const current = phrases[pIdx];
         const target = document.getElementById("dynamic-text");
-        target.textContent = isDel ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
+        target.textContent = isDel
+          ? current.substring(0, cIdx--)
+          : current.substring(0, cIdx++);
 
         if (!isDel && cIdx > current.length) {
           isDel = true;
@@ -166,25 +176,21 @@
       }
       window.onload = type;
 
-      // 2. Main API Logic (Insert, Search, Delete handle karne ke liye)
+      // 2. Main API Logic
       async function operate(type) {
-        // Form se values nikal rahe hain
         const id = document.getElementById("id").value;
         const name = document.getElementById("name").value;
         const email = document.getElementById("email").value;
         const resBox = document.getElementById("results");
 
-        // Sabse pehle check karo ki ID dali hai ya nahi
         if (!id) {
           alert("Bhai, ID dalna zaroori hai!");
           return;
         }
 
-        // Base URL bana rahe hain operation type ke hisaab se
         let url = `/api/${type}?id=${id}`;
 
-        // Agar insert kar rahe ho toh name aur email bhi URL mein jodo
-        if (type === 'insert') {
+        if (type === "insert") {
           if (!name || !email) {
             alert("Bhai, Insert ke liye Name aur Email dono chahiye!");
             return;
@@ -192,19 +198,15 @@
           url += `&name=${name}&email=${email}`;
         }
 
-        // Output box mein loading dikhao
         resBox.innerHTML = `<span class="loader">> Executing ${type.toUpperCase()} command...</span>`;
 
         try {
-          // Java API ko call maar rahe hain
           const res = await fetch(url);
           const data = await res.text();
-          
-          // Result screen par print kar rahe hain
+
           resBox.innerHTML = `> ${data}`;
 
-          // Agar data change hua hai (Insert ya Delete), toh list ko refresh karo 1.5 second baad
-          if (type !== 'search') {
+          if (type !== "search") {
             setTimeout(fetchAll, 1500);
           }
         } catch (err) {
@@ -212,26 +214,48 @@
         }
       }
 
-      // 3. Poora Database ek saath dekhne ke liye function
+      // 3. Data View Refresh
+      // 3. Data View Refresh (Updated for Comma Parsing)
       async function fetchAll() {
         const resBox = document.getElementById("results");
-        resBox.innerHTML = '<span class="loader">> Scanning B-Tree Database Nodes...</span>';
+        resBox.innerHTML =
+          '<span class="loader">> Scanning B-Tree Database Nodes...</span>';
 
         try {
           const res = await fetch("/api/all");
           const data = await res.text();
 
-          if (!data || data.trim() === "") {
-            resBox.innerHTML = "> Database is currently empty.";
+          // Check for empty or error response
+          if (!data || data.trim() === "" || data.includes("No response")) {
+            resBox.innerHTML = "> Database is empty or Engine mismatch.";
             return;
           }
 
-          // Data ko line-by-line tod kar table format mein dikhana
-          const lines = data.trim().split('\n');
-          let formattedTable = "ID | Username | Email\n" + "-".repeat(35) + "\n";
-          lines.forEach(line => {
-            formattedTable += line + "\n";
+          const lines = data.trim().split("\n");
+
+          // ⭐ TABLE HEADER: Alignment ke liye padding use ki hai
+          let formattedTable = "ID   | Username         | Email\n";
+          formattedTable += "-".repeat(55) + "\n";
+
+          lines.forEach((line) => {
+            if (line.trim() !== "" && !line.includes("Unknown")) {
+              // ⭐ MAGIC LINE: Comma se data ko todna
+              const parts = line.split(",");
+
+              if (parts.length >= 3) {
+                // padEnd use kiya hai taaki columns ek ke niche ek sahi se aayein
+                const id = parts[0].trim().padEnd(4);
+                const name = parts[1].trim().padEnd(16);
+                const email = parts[2].trim();
+
+                formattedTable += `${id} | ${name} | ${email}\n`;
+              } else {
+                // Fallback agar format purana wala hi ho
+                formattedTable += line + "\n";
+              }
+            }
           });
+
           resBox.innerHTML = formattedTable;
         } catch (err) {
           resBox.innerHTML = `> Error: ${err}`;
