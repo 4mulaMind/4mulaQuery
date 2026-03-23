@@ -1,4 +1,4 @@
-package com.formulaquery; // Agar aapka package name alag hai toh wahi likhna
+package com.formulaquery.api; // Agar aapka package name alag hai toh wahi likhna
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
