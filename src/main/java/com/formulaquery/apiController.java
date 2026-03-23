@@ -1,4 +1,4 @@
-package com.formulaquery.api;
+package com.formulaquery
 
 import java.io.*;
 import org.springframework.web.bind.annotation.*;
