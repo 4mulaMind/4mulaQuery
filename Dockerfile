@@ -2,30 +2,31 @@
 FROM maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /workspace
 
-# Install G++ 
+# G++ install karna
 RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
-# ⭐ FIX: Find the directory containing pom.xml and build there
-RUN POM_DIR=$(find . -name "pom.xml" -exec dirname {} \;) && \
-    cd $POM_DIR && mvn clean package -DskipTests
+# 1. Java Build - 'app' folder ke andar ja kar build karo
+RUN cd app && mvn clean package -DskipTests
 
-# 2. C++ Build (Core folder check)
+# 2. C++ Build - 'core' folder bahar hi hai
 RUN g++ -O3 core/*.cpp -o core/4mulaQuery
 
 # Stage 2: Run the application
 FROM eclipse-temurin:17-jdk-focal
 WORKDIR /app
 
-# Runtime libraries
+# Runtime dependencies
 RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
 
-# ⭐ FIX: Find and copy the generated JAR no matter where it is
-COPY --from=build /workspace/**/target/*.jar app.jar
+# JAR copy karo - Path: /workspace/app/target/
+COPY --from=build /workspace/app/target/*.jar app.jar
+
+# Engine copy karo
 COPY --from=build /workspace/core ./core
 
-# Permissions for Render
+# Permissions and DB file creation
 RUN chmod +x ./core/4mulaQuery
 RUN touch 4mulaQuery.db && chmod 666 4mulaQuery.db
 
