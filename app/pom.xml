@@ -1,53 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Ye Maven project configuration file hai
-     Isme project ki dependencies, plugins aur build settings define hoti hain -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <!-- Maven model version (standard configuration) -->
+    
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Spring Boot parent project
-         Ye automatically dependency versions manage karta hai -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.0</version>
-        <relativePath/>
+        <relativePath/> 
     </parent>
 
-    <!-- Project ka unique group id (usually company ya organization name) -->
     <groupId>com.formulaquery</groupId>
-
-    <!-- Project ka artifact id (project name) -->
     <artifactId>api</artifactId>
-
-    <!-- Project version -->
     <version>1.0.0</version>
-
-    <!-- Project display name -->
     <name>4mulaQuery API</name>
+    <description>The Bridge between Frontend UI and C++ Engine</description>
 
-    <!-- Java version jo project use karega -->
     <properties>
         <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- Project dependencies -->
     <dependencies>
 
-        <!-- Spring Boot Web dependency
-             Isse REST APIs aur web server (Tomcat) milta hai -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Testing dependency
-             Unit testing aur integration testing ke liye use hoti hai -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -56,23 +39,20 @@
 
     </dependencies>
 
-    <!-- Build configuration -->
     <build>
-        <plugins>
+        
+        <finalName>4mulaQuery-API</finalName>
 
-            <!-- Spring Boot Maven plugin
-                 Ye project ko executable JAR file mein convert karta hai -->
+        <plugins>
+            
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-
+                
                 <executions>
                     <execution>
                         <goals>
-
-                            <!-- Repackage goal jar ko executable banata hai -->
                             <goal>repackage</goal>
-
                         </goals>
                     </execution>
                 </executions>
@@ -80,6 +60,7 @@
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>
