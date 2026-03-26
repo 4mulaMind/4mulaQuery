@@ -1,34 +1,37 @@
-# Stage 1: Build Java and C++
-# 'maven:3.8.4-openjdk-17' ki jagah ye use karo (Debian based)
+# Stage 1: Build
 FROM maven:3.8.4-openjdk-17-slim AS build
 WORKDIR /workspace
 
-# Ab apt-get perfect chalega
+# G++ install karna build stage mein
 RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
-# 1. Java Build
-RUN cd app && mvn clean package -DskipTests spring-boot:repackage
+# Build Java (Dhyan rakhein ki 'app' folder sahi hai)
+RUN mvn clean package -DskipTests
 
-# 2. C++ Build
+# Build C++ Engine
 RUN g++ -O3 core/*.cpp -o core/4mulaQuery
 
-# Stage 2: Run the application
+# Stage 2: Run
 FROM eclipse-temurin:17-jdk-focal
 WORKDIR /app
 
-# Runtime libraries ke liye g++ yahan bhi zaroori hai
-RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
+# Runtime dependencies
+RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
 
-# JAR copy karo
-COPY --from=build /workspace/app/target/*.jar app.jar
-
-# Compiled C++ engine copy karo
+# Copy artifacts
+COPY --from=build /workspace/target/*.jar app.jar
 COPY --from=build /workspace/core ./core
 
-# Permission set karo
+# ⭐ FIX 1: Engine ko root directory se access karne ke liye permissions
 RUN chmod +x ./core/4mulaQuery
 
+# ⭐ FIX 2: Database file ko manually create karke write permission dena
+# Iske bina Render file system block kar deta hai
+RUN touch 4mulaQuery.db && chmod 666 4mulaQuery.db
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# ⭐ FIX 3: Java ko file creation ki extra power dena
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]

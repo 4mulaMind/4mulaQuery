@@ -53,6 +53,15 @@ public class ApiController {
         // Engine ko search command bhej rahe hain
         return executeCommand("search," + id);
     }
+    // ---------------------------------------------
+    // DELETE BY ID API
+    // Example: /api/delete?id=5
+    // --------------------------------------------- 
+    @GetMapping("/delete")
+    public String deleteData(@RequestParam int id) {
+        // Abhi ke liye engine ko sirf message bhej rahe hain
+        return executeCommand("delete," + id + ",");
+    }
 
     // ---------------------------------------------
     // CORE METHOD

@@ -10,7 +10,7 @@
 int main() {
 
     // Database pager initialize
-    Pager db("4mulaQuery.db");
+    Pager db("./4mulaQuery.db"); // './' lagana bohot zaroori hai Render ke liye
 
     uint32_t row_count = 0;
     Row temp;
