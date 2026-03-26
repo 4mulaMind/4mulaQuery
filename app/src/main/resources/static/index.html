@@ -1,451 +1,360 @@
 <!-- @format -->
-============================================================
-4mulaQuery - Intelligent Database Engine
-============================================================
-
-File Location:
-src/main/resources/static/index.html
-
-Purpose:
-Frontend interface for interacting with the 4mulaQuery engine.
-
-Features:
-• SQL Query Input
-• Execute Query Button
-• Result Output Panel
-• Clean UI
-
-============================================================
-<!DOCTYPE html>
+/*============================================================ 4mulaQuery -
+Intelligent Database Engine
+============================================================ File Location:
+src/main/resources/static/index.html Purpose: Frontend interface for interacting
+with the 4mulaQuery engine. Features: • SQL Query Input • Execute Query Button •
+Result Output Panel • Clean UI
+============================================================*/
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
+    <!-- Responsive Layout -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<meta charset="UTF-8">
+    <title>4mulaQuery | Intelligent Database Engine</title>
 
-<!-- Responsive Layout -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
 
-<title>4mulaQuery | Intelligent Database Engine</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/Logo.jpg" />
 
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-<!-- Favicon -->
-<link rel="icon" type="image/jpeg" href="/Logo.jpg">
-
-<style>
-
-/* =====================================================
+    <style>
+      /* =====================================================
    COLOR THEME
    Navy Blue  : #001f3f
    Gold       : #d4af37
    Beige      : #f5f5dc
 ===================================================== */
 
-body{
-font-family:"Poppins",sans-serif;
-background:#f5f5dc;
-margin:0;
-padding:20px;
-color:#001f3f;
-}
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #f5f5dc;
+        margin: 0;
+        padding: 20px;
+        color: #001f3f;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    MAIN CONTAINER
 ===================================================== */
 
-.container{
-max-width:900px;
-margin:40px auto;
-background:#ffffff;
-padding:40px;
-border-radius:20px;
-box-shadow:0 15px 35px rgba(0,0,0,0.15);
-border:2px solid #d4af37;
-}
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        border: 2px solid #d4af37;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    HEADER SECTION
 ===================================================== */
 
-.header-section{
-text-align:center;
-margin-bottom:25px;
-}
+      .header-section {
+        text-align: center;
+        margin-bottom: 25px;
+      }
 
-.header-logo{
-width:120px;
-margin-bottom:10px;
-border-radius:12px;
-filter:drop-shadow(0px 4px 8px rgba(0,0,0,0.2));
-}
+      .header-logo {
+        width: 120px;
+        margin-bottom: 10px;
+        border-radius: 12px;
+        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2));
+      }
 
-h1{
-font-size:2.8em;
-margin:0;
-}
+      h1 {
+        font-size: 2.8em;
+        margin: 0;
+      }
 
-h1 span{
-color:#d4af37;
-}
+      h1 span {
+        color: #d4af37;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    DYNAMIC TEXT
 ===================================================== */
 
-#dynamic-text{
-font-size:1.2em;
-color:#b29400;
-font-weight:bold;
-min-height:1.5em;
-margin-bottom:25px;
-}
+      #dynamic-text {
+        font-size: 1.2em;
+        color: #b29400;
+        font-weight: bold;
+        min-height: 1.5em;
+        margin-bottom: 25px;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    SECTION BLOCK
 ===================================================== */
 
-.section{
-margin-bottom:25px;
-padding:20px;
-background:#fafafa;
-border-radius:12px;
-border-left:6px solid #001f3f;
-}
+      .section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #fafafa;
+        border-radius: 12px;
+        border-left: 6px solid #001f3f;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    INPUT GROUP
 ===================================================== */
 
-.input-group{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
+      .input-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
 
-input{
-padding:12px;
-border:1px solid #d4af37;
-border-radius:8px;
-flex:1;
-min-width:150px;
-outline:none;
-}
+      input {
+        padding: 12px;
+        border: 1px solid #d4af37;
+        border-radius: 8px;
+        flex: 1;
+        min-width: 150px;
+        outline: none;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    BUTTON STYLE
 ===================================================== */
 
-button{
-padding:12px 25px;
-background:#001f3f;
-color:#d4af37;
-border:2px solid #d4af37;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-transition:0.3s;
-}
+      button {
+        padding: 12px 25px;
+        background: #001f3f;
+        color: #d4af37;
+        border: 2px solid #d4af37;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
 
-button:hover{
-background:#d4af37;
-color:#001f3f;
-}
+      button:hover {
+        background: #d4af37;
+        color: #001f3f;
+      }
 
-
-/* =====================================================
+      /* =====================================================
    RESULT CONSOLE
 ===================================================== */
 
-#results{
-margin-top:30px;
-padding:20px;
-background:#001f3f;
-color:#f5f5dc;
-border-radius:12px;
-font-family:"Courier New",monospace;
-min-height:120px;
-border-left:6px solid #d4af37;
-white-space:pre-wrap;
-overflow-y:auto;
-max-height:320px;
-}
+      #results {
+        margin-top: 30px;
+        padding: 20px;
+        background: #001f3f;
+        color: #f5f5dc;
+        border-radius: 12px;
+        font-family: "Courier New", monospace;
+        min-height: 120px;
+        border-left: 6px solid #d4af37;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        max-height: 320px;
+      }
 
+      /* Loader */
 
-/* Loader */
+      .loader {
+        color: #d4af37;
+        font-style: italic;
+      }
+    </style>
+  </head>
 
-.loader{
-color:#d4af37;
-font-style:italic;
-}
-
-</style>
-
-</head>
-
-
-<body>
-
-<div class="container">
-
-<!-- =====================================================
+  <body>
+    <div class="container">
+      <!-- =====================================================
      HEADER
 ===================================================== -->
 
-<div class="header-section">
+      <div class="header-section">
+        <img src="/Logo.jpg" class="header-logo" />
 
-<img src="/Logo.jpg" class="header-logo">
+        <h1>4mula<span>Query</span></h1>
 
-<h1>4mula<span>Query</span></h1>
+        <div id="dynamic-text"></div>
+      </div>
 
-<div id="dynamic-text"></div>
-
-</div>
-
-
-<!-- =====================================================
+      <!-- =====================================================
      DATABASE OPERATIONS
 ===================================================== -->
 
-<div class="section">
+      <div class="section">
+        <h3>📥 Database Operations</h3>
 
-<h3>📥 Database Operations</h3>
+        <div class="input-group">
+          <input type="number" id="id" placeholder="ID (Required)" />
+          <input type="text" id="name" placeholder="Name (Insert)" />
+          <input type="email" id="email" placeholder="Email (Insert)" />
+        </div>
 
-<div class="input-group">
+        <div class="input-group" style="margin-top: 15px">
+          <button onclick="operate('insert')">Insert</button>
 
-<input type="number" id="id" placeholder="ID (Required)">
-<input type="text" id="name" placeholder="Name (Insert)">
-<input type="email" id="email" placeholder="Email (Insert)">
+          <button onclick="operate('search')">Search</button>
 
-</div>
+          <button onclick="operate('delete')">Delete</button>
+        </div>
+      </div>
 
-<div class="input-group" style="margin-top:15px">
-
-<button onclick="operate('insert')">Insert</button>
-
-<button onclick="operate('search')">Search</button>
-
-<button onclick="operate('delete')">Delete</button>
-
-</div>
-
-</div>
-
-
-<!-- =====================================================
+      <!-- =====================================================
      DATA VIEW
 ===================================================== -->
 
-<div class="section">
+      <div class="section">
+        <h3>📂 Data Explorer</h3>
 
-<h3>📂 Data Explorer</h3>
+        <button onclick="fetchAll()">Refresh Database View</button>
+      </div>
 
-<button onclick="fetchAll()">Refresh Database View</button>
-
-</div>
-
-
-<!-- =====================================================
+      <!-- =====================================================
      RESULT CONSOLE
 ===================================================== -->
 
-<div id="results">
+      <div id="results">> Engine Ready. Waiting for command...</div>
+    </div>
 
-> Engine Ready. Waiting for command...
-
-</div>
-
-</div>
-
-
-
-<script>
-
-/* =====================================================
+    <script>
+      /* =====================================================
    TYPING ANIMATION
 ===================================================== */
 
-const phrases=[
-"Fastest C++ B-Tree Engine",
-"Developed by Abdul Qadir",
-"Spring Boot + Docker Integrated"
-];
+      const phrases = [
+        "Fastest C++ B-Tree Engine",
+        "Developed by Abdul Qadir",
+        "Spring Boot + Docker Integrated",
+      ];
 
-let pIndex=0;
-let cIndex=0;
-let deleting=false;
+      let pIndex = 0;
+      let cIndex = 0;
+      let deleting = false;
 
-function type(){
+      function type() {
+        const text = phrases[pIndex];
+        const target = document.getElementById("dynamic-text");
 
-const text=phrases[pIndex];
-const target=document.getElementById("dynamic-text");
+        target.textContent = deleting
+          ? text.substring(0, cIndex--)
+          : text.substring(0, cIndex++);
 
-target.textContent=deleting
-? text.substring(0,cIndex--)
-: text.substring(0,cIndex++);
+        if (!deleting && cIndex > text.length) {
+          deleting = true;
+          setTimeout(type, 2000);
+        } else if (deleting && cIndex === 0) {
+          deleting = false;
+          pIndex = (pIndex + 1) % phrases.length;
+          setTimeout(type, 500);
+        } else {
+          setTimeout(type, deleting ? 50 : 100);
+        }
+      }
 
-if(!deleting && cIndex>text.length){
+      window.onload = type;
 
-deleting=true;
-setTimeout(type,2000);
-
-}
-
-else if(deleting && cIndex===0){
-
-deleting=false;
-pIndex=(pIndex+1)%phrases.length;
-setTimeout(type,500);
-
-}
-
-else{
-
-setTimeout(type,deleting?50:100);
-
-}
-
-}
-
-window.onload=type;
-
-
-
-/* =====================================================
+      /* =====================================================
    DATABASE OPERATION FUNCTION
 ===================================================== */
 
-async function operate(type){
+      async function operate(type) {
+        const id = document.getElementById("id").value;
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
 
-const id=document.getElementById("id").value;
-const name=document.getElementById("name").value;
-const email=document.getElementById("email").value;
+        const resBox = document.getElementById("results");
 
-const resBox=document.getElementById("results");
+        if (!id || id <= 0) {
+          alert("Valid ID required");
+          return;
+        }
 
-if(!id || id<=0){
+        let url = `/api/${type}?id=${id}`;
 
-alert("Valid ID required");
-return;
+        if (type === "insert") {
+          if (!name || !email) {
+            alert("Name and Email required for insert");
+            return;
+          }
 
-}
+          url += `&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+        }
 
-let url=`/api/${type}?id=${id}`;
+        /* Execution time measure */
 
-if(type==="insert"){
+        const start = performance.now();
 
-if(!name || !email){
+        resBox.innerHTML = `<span class="loader">> Executing ${type.toUpperCase()}...</span>`;
 
-alert("Name and Email required for insert");
-return;
+        try {
+          const response = await fetch(url);
+          const data = await response.text();
 
-}
+          const end = performance.now();
+          const time = (end - start).toFixed(2);
 
-url+=`&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+          resBox.innerHTML = `${data}\n\nExecuted in ${time} ms`;
 
-}
+          if (type === "insert" && data.includes("Executed")) {
+            document.getElementById("id").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
 
-/* Execution time measure */
+            setTimeout(fetchAll, 1000);
+          }
+        } catch (err) {
+          resBox.innerHTML = `> Error: ${err}`;
+        }
+      }
 
-const start=performance.now();
-
-resBox.innerHTML=`<span class="loader">> Executing ${type.toUpperCase()}...</span>`;
-
-try{
-
-const response=await fetch(url);
-const data=await response.text();
-
-const end=performance.now();
-const time=(end-start).toFixed(2);
-
-resBox.innerHTML=`${data}\n\nExecuted in ${time} ms`;
-
-if(type==="insert" && data.includes("Executed")){
-
-document.getElementById("id").value="";
-document.getElementById("name").value="";
-document.getElementById("email").value="";
-
-setTimeout(fetchAll,1000);
-
-}
-
-}
-
-catch(err){
-
-resBox.innerHTML=`> Error: ${err}`;
-
-}
-
-}
-
-
-
-/* =====================================================
+      /* =====================================================
    FETCH ALL DATABASE RECORDS
 ===================================================== */
 
-async function fetchAll(){
+      async function fetchAll() {
+        const resBox = document.getElementById("results");
 
-const resBox=document.getElementById("results");
+        resBox.innerHTML =
+          '<span class="loader">> Scanning B-Tree Nodes...</span>';
 
-resBox.innerHTML='<span class="loader">> Scanning B-Tree Nodes...</span>';
+        try {
+          const response = await fetch("/api/all");
+          const data = await response.text();
 
-try{
+          if (!data || data.trim() === "") {
+            resBox.innerHTML = "> Database is empty.";
+            return;
+          }
 
-const response=await fetch("/api/all");
-const data=await response.text();
+          const rows = data.trim().split("\n");
 
-if(!data || data.trim()===""){
+          let table = "ID   | Username         | Email\n";
+          table += "-".repeat(50) + "\n";
 
-resBox.innerHTML="> Database is empty.";
-return;
+          rows.forEach((row) => {
+            const parts = row.split(",");
 
-}
+            if (parts.length >= 3) {
+              const id = parts[0].trim().padEnd(4);
+              const name = parts[1].trim().padEnd(16);
+              const email = parts[2].trim();
 
-const rows=data.trim().split("\n");
+              table += `${id} | ${name} | ${email}\n`;
+            }
+          });
 
-let table="ID   | Username         | Email\n";
-table+="-".repeat(50)+"\n";
-
-rows.forEach(row=>{
-
-const parts=row.split(",");
-
-if(parts.length>=3){
-
-const id=parts[0].trim().padEnd(4);
-const name=parts[1].trim().padEnd(16);
-const email=parts[2].trim();
-
-table+=`${id} | ${name} | ${email}\n`;
-
-}
-
-});
-
-resBox.innerHTML=table;
-
-}
-
-catch(err){
-
-resBox.innerHTML=`> Error: ${err}`;
-
-}
-
-}
-
-</script>
-
-</body>
+          resBox.innerHTML = table;
+        } catch (err) {
+          resBox.innerHTML = `> Error: ${err}`;
+        }
+      }
+    </script>
+  </body>
 </html>
