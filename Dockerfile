@@ -21,7 +21,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
 
 # JAR copy karo - Path: /workspace/app/target/
-COPY --from=build /workspace/app/target/*.jar app.jar
+COPY --from=build /workspace/app/target/api-1.0.0.jar app.jar
 
 # Engine copy karo
 COPY --from=build /workspace/core ./core
