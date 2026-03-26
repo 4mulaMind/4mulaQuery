@@ -1,34 +1,98 @@
-# Stage 1: Build Java and C++
+# =========================================================
+# Stage 1: Build Stage
+# Java Spring Boot application aur C++ database engine compile karega
+# =========================================================
 FROM maven:3.8.4-openjdk-17-slim AS build
+
+# ---------------------------------------------------------
+# Working directory set kar rahe hain
+# Sab build operations yahi honge
+# ---------------------------------------------------------
 WORKDIR /workspace
 
-# G++ install karna
-RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
+# ---------------------------------------------------------
+# C++ compiler install karna
+# core C++ engine compile karne ke liye
+# ---------------------------------------------------------
+RUN apt-get update && \
+    apt-get install -y g++ && \
+    rm -rf /var/lib/apt/lists/*
 
+# ---------------------------------------------------------
+# Project source code copy karna
+# app = Java Spring Boot project
+# core = C++ engine
+# ---------------------------------------------------------
 COPY . .
 
-# 1. Java Build - 'app' folder ke andar ja kar build karo
-RUN cd app && mvn clean package -DskipTests
+# ---------------------------------------------------------
+# Java Build (Maven)
+# - app folder me jaake clean package
+# - Tests skip kar rahe hain taaki build fast ho
+# ---------------------------------------------------------
+WORKDIR /workspace/app
+RUN mvn clean package -DskipTests
 
-# 2. C++ Build - 'core' folder bahar hi hai
-RUN g++ -O3 core/*.cpp -o core/4mulaQuery
+# ---------------------------------------------------------
+# C++ Build
+# - core folder ke saare .cpp files compile karenge
+# - Output binary: core/4mulaQuery
+# - -O3 flag: high-performance optimization
+# ---------------------------------------------------------
+WORKDIR /workspace/core
+RUN g++ -O3 *.cpp -o 4mulaQuery
 
-# Stage 2: Run the application
+# ---------------------------------------------------------
+# Wapas workspace me aana
+# ---------------------------------------------------------
+WORKDIR /workspace
+
+# =========================================================
+# Stage 2: Runtime Stage
+# Lightweight container jisme application run karegi
+# =========================================================
 FROM eclipse-temurin:17-jdk-focal
+
+# ---------------------------------------------------------
+# Runtime working directory
+# ---------------------------------------------------------
 WORKDIR /app
 
-# Runtime dependencies
-RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
+# ---------------------------------------------------------
+# Runtime dependencies install karna
+# libstdc++6 C++ engine ke liye zaroori hai
+# ---------------------------------------------------------
+RUN apt-get update && \
+    apt-get install -y libstdc++6 && \
+    rm -rf /var/lib/apt/lists/*
 
-# JAR copy karo - Path: /workspace/app/target/
+# ---------------------------------------------------------
+# Java JAR copy karna build stage se
+# ---------------------------------------------------------
 COPY --from=build /workspace/app/target/api-1.0.0.jar app.jar
 
-# Engine copy karo
+# ---------------------------------------------------------
+# C++ Engine binary copy karna
+# ---------------------------------------------------------
 COPY --from=build /workspace/core ./core
 
-# Permissions and DB file creation
+# ---------------------------------------------------------
+# Permissions
+# - C++ binary ko executable bana rahe hain
+# - Database file create aur read/write permissions set
+# ---------------------------------------------------------
 RUN chmod +x ./core/4mulaQuery
 RUN touch 4mulaQuery.db && chmod 666 4mulaQuery.db
 
+# ---------------------------------------------------------
+# Application port
+# ---------------------------------------------------------
 EXPOSE 8080
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dserver.port=${PORT:8080}", "-jar", "app.jar"]
+ENV PORT=8080
+
+# ---------------------------------------------------------
+# Entry point
+# - Java application run karne ke liye
+# - Security random source aur PORT environment variable support
+# ---------------------------------------------------------
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dserver.port=${PORT}", "-jar", "app.jar"]

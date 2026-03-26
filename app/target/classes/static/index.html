@@ -1,360 +1,451 @@
 <!-- @format -->
+============================================================
+4mulaQuery - Intelligent Database Engine
+============================================================
 
-<!doctype html>
+File Location:
+src/main/resources/static/index.html
+
+Purpose:
+Frontend interface for interacting with the 4mulaQuery engine.
+
+Features:
+• SQL Query Input
+• Execute Query Button
+• Result Output Panel
+• Clean UI
+
+============================================================
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- Responsive layout ke liye viewport -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
 
-    <title>4mulaQuery | Database Engine</title>
+<meta charset="UTF-8">
 
-    <!-- Website favicon -->
-    <link rel="icon" type="image/jpeg" href="/Logo.jpg" />
-    <link rel="shortcut icon" href="/Logo.jpg" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/Logo.jpg" />
+<!-- Responsive Layout -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-      /* ===============================
+<title>4mulaQuery | Intelligent Database Engine</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- Favicon -->
+<link rel="icon" type="image/jpeg" href="/Logo.jpg">
+
+<style>
+
+/* =====================================================
    COLOR THEME
    Navy Blue  : #001f3f
    Gold       : #d4af37
    Beige      : #f5f5dc
-================================ */
+===================================================== */
 
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f5f5dc;
-        margin: 0;
-        padding: 20px;
-        color: #001f3f;
-      }
+body{
+font-family:"Poppins",sans-serif;
+background:#f5f5dc;
+margin:0;
+padding:20px;
+color:#001f3f;
+}
 
-      /* Main UI container */
-      .container {
-        max-width: 900px;
-        margin: 40px auto;
-        background: #ffffff;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        border: 2px solid #d4af37;
-      }
 
-      /* Header section */
-      .header-section {
-        text-align: center;
-        margin-bottom: 20px;
-      }
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
 
-      /* Logo styling */
-      .header-logo {
-        width: 120px;
-        margin-bottom: 10px;
-        filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2));
-        border-radius: 12px;
-      }
+.container{
+max-width:900px;
+margin:40px auto;
+background:#ffffff;
+padding:40px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,0.15);
+border:2px solid #d4af37;
+}
 
-      /* Title styling */
-      h1 {
-        font-size: 2.8em;
-        margin: 0;
-      }
 
-      h1 span {
-        color: #d4af37;
-      }
+/* =====================================================
+   HEADER SECTION
+===================================================== */
 
-      /* Dynamic typing text */
-      #dynamic-text {
-        font-size: 1.2em;
-        color: #b29400;
-        font-weight: bold;
-        min-height: 1.5em;
-        margin-bottom: 30px;
-        text-align: center;
-      }
+.header-section{
+text-align:center;
+margin-bottom:25px;
+}
 
-      /* Section blocks */
-      .section {
-        margin-bottom: 25px;
-        padding: 20px;
-        background: #fafafa;
-        border-radius: 12px;
-        border-left: 6px solid #001f3f;
-      }
+.header-logo{
+width:120px;
+margin-bottom:10px;
+border-radius:12px;
+filter:drop-shadow(0px 4px 8px rgba(0,0,0,0.2));
+}
 
-      /* Input group layout */
-      .input-group {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
+h1{
+font-size:2.8em;
+margin:0;
+}
 
-      /* Input fields */
-      input {
-        padding: 12px;
-        border: 1px solid #d4af37;
-        border-radius: 8px;
-        flex: 1;
-        min-width: 150px;
-        outline: none;
-      }
+h1 span{
+color:#d4af37;
+}
 
-      /* Buttons */
-      button {
-        padding: 12px 25px;
-        background-color: #001f3f;
-        color: #d4af37;
-        border: 2px solid #d4af37;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-      }
 
-      /* Button hover animation */
-      button:hover {
-        background-color: #d4af37;
-        color: #001f3f;
-      }
+/* =====================================================
+   DYNAMIC TEXT
+===================================================== */
 
-      /* Result console */
-      #results {
-        margin-top: 30px;
-        padding: 20px;
-        background: #001f3f;
-        color: #f5f5dc;
-        border-radius: 12px;
-        font-family: "Courier New", monospace;
-        min-height: 120px;
-        border-left: 6px solid #d4af37;
-        white-space: pre-wrap;
-        overflow-y: auto;
-      }
+#dynamic-text{
+font-size:1.2em;
+color:#b29400;
+font-weight:bold;
+min-height:1.5em;
+margin-bottom:25px;
+}
 
-      /* Loader text */
-      .loader {
-        color: #d4af37;
-        font-style: italic;
-      }
-    </style>
-  </head>
 
-  <body>
-    <div class="container">
-      <!-- ===============================
-     HEADER SECTION
-================================ -->
+/* =====================================================
+   SECTION BLOCK
+===================================================== */
 
-      <div class="header-section">
-        <img src="/Logo.jpg" alt="4mulaQuery Logo" class="header-logo" />
+.section{
+margin-bottom:25px;
+padding:20px;
+background:#fafafa;
+border-radius:12px;
+border-left:6px solid #001f3f;
+}
 
-        <h1>4mula<span>Query</span></h1>
 
-        <!-- Dynamic typing text -->
-        <div id="dynamic-text"></div>
-      </div>
+/* =====================================================
+   INPUT GROUP
+===================================================== */
 
-      <!-- ===============================
+.input-group{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+input{
+padding:12px;
+border:1px solid #d4af37;
+border-radius:8px;
+flex:1;
+min-width:150px;
+outline:none;
+}
+
+
+/* =====================================================
+   BUTTON STYLE
+===================================================== */
+
+button{
+padding:12px 25px;
+background:#001f3f;
+color:#d4af37;
+border:2px solid #d4af37;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+transition:0.3s;
+}
+
+button:hover{
+background:#d4af37;
+color:#001f3f;
+}
+
+
+/* =====================================================
+   RESULT CONSOLE
+===================================================== */
+
+#results{
+margin-top:30px;
+padding:20px;
+background:#001f3f;
+color:#f5f5dc;
+border-radius:12px;
+font-family:"Courier New",monospace;
+min-height:120px;
+border-left:6px solid #d4af37;
+white-space:pre-wrap;
+overflow-y:auto;
+max-height:320px;
+}
+
+
+/* Loader */
+
+.loader{
+color:#d4af37;
+font-style:italic;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="header-section">
+
+<img src="/Logo.jpg" class="header-logo">
+
+<h1>4mula<span>Query</span></h1>
+
+<div id="dynamic-text"></div>
+
+</div>
+
+
+<!-- =====================================================
      DATABASE OPERATIONS
-================================ -->
+===================================================== -->
 
-      <div class="section">
-        <h3>📥 Database Operations</h3>
+<div class="section">
 
-        <div class="input-group">
-          <input type="number" id="id" placeholder="ID (Required)" />
-          <input type="text" id="name" placeholder="Name (for Insert)" />
-          <input type="email" id="email" placeholder="Email (for Insert)" />
-        </div>
+<h3>📥 Database Operations</h3>
 
-        <div class="input-group" style="margin-top: 15px">
-          <button onclick="operate('insert')">Insert Record</button>
+<div class="input-group">
 
-          <button onclick="operate('search')" style="background-color: #2980b9">
-            Search ID
-          </button>
+<input type="number" id="id" placeholder="ID (Required)">
+<input type="text" id="name" placeholder="Name (Insert)">
+<input type="email" id="email" placeholder="Email (Insert)">
 
-          <button onclick="operate('delete')" style="background-color: #c0392b">
-            Delete ID
-          </button>
-        </div>
-      </div>
+</div>
 
-      <!-- ===============================
-     DATA VIEW SECTION
-================================ -->
+<div class="input-group" style="margin-top:15px">
 
-      <div class="section">
-        <h3>📂 Data Explorer</h3>
+<button onclick="operate('insert')">Insert</button>
 
-        <button
-          onclick="fetchAll()"
-          style="background-color: #b29400; color: white; border: none"
-        >
-          Refresh Database View
-        </button>
-      </div>
+<button onclick="operate('search')">Search</button>
 
-      <!-- Output Console -->
-      <div id="results">> Engine Ready. Waiting for command...</div>
-    </div>
+<button onclick="operate('delete')">Delete</button>
 
-    <script>
-      /* ===================================
-   1. Typing Animation Logic
-=================================== */
+</div>
 
-      const phrases = [
-        "Fastest C++ B-Tree Engine",
-        "Developed by Abdul Qadir",
-        "Spring Boot + Docker Integrated",
-      ];
+</div>
 
-      let pIdx = 0,
-        cIdx = 0,
-        isDel = false;
 
-      function type() {
-        const current = phrases[pIdx];
-        const target = document.getElementById("dynamic-text");
+<!-- =====================================================
+     DATA VIEW
+===================================================== -->
 
-        target.textContent = isDel
-          ? current.substring(0, cIdx--)
-          : current.substring(0, cIdx++);
+<div class="section">
 
-        if (!isDel && cIdx > current.length) {
-          isDel = true;
-          setTimeout(type, 2000);
-        } else if (isDel && cIdx === 0) {
-          isDel = false;
-          pIdx = (pIdx + 1) % phrases.length;
-          setTimeout(type, 500);
-        } else {
-          setTimeout(type, isDel ? 50 : 100);
-        }
-      }
+<h3>📂 Data Explorer</h3>
 
-      window.onload = type;
+<button onclick="fetchAll()">Refresh Database View</button>
 
-      /* ===================================
-   2. Main Database Operation Logic
-=================================== */
+</div>
 
-      // Ye function database operations handle karta hai (insert, search, all)
-      async function operate(type) {
-        // HTML page se input fields aur result box ko select kar rahe hain
-        const idInput = document.getElementById("id");
-        const nameInput = document.getElementById("name");
-        const emailInput = document.getElementById("email");
-        const resBox = document.getElementById("results");
 
-        // User ne jo values dali hain unko read kar rahe hain
-        const id = idInput.value;
-        const name = nameInput.value;
-        const email = emailInput.value;
+<!-- =====================================================
+     RESULT CONSOLE
+===================================================== -->
 
-        // Check kar rahe hain ki ID empty to nahi hai
-        if (!id) {
-          alert("ID is required.");
-          return;
-        }
+<div id="results">
 
-        // Base API URL bana rahe hain
-        let url = `/api/${type}?id=${id}`;
+> Engine Ready. Waiting for command...
 
-        // Agar operation insert hai to name aur email bhi bhejna padega
-        if (type === "insert") {
-          // Validation check kar rahe hain
-          if (!name || !email) {
-            alert("Name and Email are required for insert operation.");
-            return;
-          }
+</div>
 
-          // encodeURIComponent use kar rahe hain taaki spaces aur special characters safe rahein
-          url += `&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
-        }
+</div>
 
-        // User ko loading message dikha rahe hain
-        resBox.innerHTML = `> Executing ${type.toUpperCase()} command...`;
 
-        try {
-          // Backend API ko request bhej rahe hain
-          const res = await fetch(url);
 
-          // Response ko text format mein read kar rahe hain
-          const data = await res.text();
+<script>
 
-          // Result ko UI mein display kar rahe hain
-          resBox.innerHTML = `> ${data}`;
+/* =====================================================
+   TYPING ANIMATION
+===================================================== */
 
-          // Agar insert successful hua to input fields clear kar do
-          if (type === "insert" && data.includes("Executed")) {
-            idInput.value = "";
-            nameInput.value = "";
-            emailInput.value = "";
+const phrases=[
+"Fastest C++ B-Tree Engine",
+"Developed by Abdul Qadir",
+"Spring Boot + Docker Integrated"
+];
 
-            // 1 second baad updated data fetch kar lenge
-            setTimeout(fetchAll, 1000);
-          }
-        } catch (err) {
-          // Agar network ya server error aaye to user ko show karo
-          resBox.innerHTML = `> Error: ${err}`;
-        }
-      }
+let pIndex=0;
+let cIndex=0;
+let deleting=false;
 
-      /* ===================================
-   3. Fetch All Database Records
-=================================== */
+function type(){
 
-      async function fetchAll() {
-        const resBox = document.getElementById("results");
+const text=phrases[pIndex];
+const target=document.getElementById("dynamic-text");
 
-        resBox.innerHTML =
-          '<span class="loader">> Scanning B-Tree Nodes...</span>';
+target.textContent=deleting
+? text.substring(0,cIndex--)
+: text.substring(0,cIndex++);
 
-        try {
-          const res = await fetch("/api/all");
+if(!deleting && cIndex>text.length){
 
-          const data = await res.text();
+deleting=true;
+setTimeout(type,2000);
 
-          /* Empty database check */
+}
 
-          if (!data || data.trim() === "" || data.includes("No response")) {
-            resBox.innerHTML = "> Database is empty.";
-            return;
-          }
+else if(deleting && cIndex===0){
 
-          /* Response ko rows mein convert */
+deleting=false;
+pIndex=(pIndex+1)%phrases.length;
+setTimeout(type,500);
 
-          const lines = data.trim().split("\n");
+}
 
-          /* Table header */
+else{
 
-          let table =
-            "ID   | Username         | Email\n" + "-".repeat(50) + "\n";
+setTimeout(type,deleting?50:100);
 
-          /* Row formatting */
+}
 
-          lines.forEach((line) => {
-            const parts = line.split(",");
+}
 
-            if (parts.length >= 3) {
-              const id = parts[0].trim().padEnd(4);
-              const name = parts[1].trim().padEnd(16);
-              const email = parts[2].trim();
+window.onload=type;
 
-              table += `${id} | ${name} | ${email}\n`;
-            }
-          });
 
-          resBox.innerHTML = table;
-        } catch (err) {
-          resBox.innerHTML = `> Error: ${err}`;
-        }
-      }
-    </script>
-  </body>
+
+/* =====================================================
+   DATABASE OPERATION FUNCTION
+===================================================== */
+
+async function operate(type){
+
+const id=document.getElementById("id").value;
+const name=document.getElementById("name").value;
+const email=document.getElementById("email").value;
+
+const resBox=document.getElementById("results");
+
+if(!id || id<=0){
+
+alert("Valid ID required");
+return;
+
+}
+
+let url=`/api/${type}?id=${id}`;
+
+if(type==="insert"){
+
+if(!name || !email){
+
+alert("Name and Email required for insert");
+return;
+
+}
+
+url+=`&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+
+}
+
+/* Execution time measure */
+
+const start=performance.now();
+
+resBox.innerHTML=`<span class="loader">> Executing ${type.toUpperCase()}...</span>`;
+
+try{
+
+const response=await fetch(url);
+const data=await response.text();
+
+const end=performance.now();
+const time=(end-start).toFixed(2);
+
+resBox.innerHTML=`${data}\n\nExecuted in ${time} ms`;
+
+if(type==="insert" && data.includes("Executed")){
+
+document.getElementById("id").value="";
+document.getElementById("name").value="";
+document.getElementById("email").value="";
+
+setTimeout(fetchAll,1000);
+
+}
+
+}
+
+catch(err){
+
+resBox.innerHTML=`> Error: ${err}`;
+
+}
+
+}
+
+
+
+/* =====================================================
+   FETCH ALL DATABASE RECORDS
+===================================================== */
+
+async function fetchAll(){
+
+const resBox=document.getElementById("results");
+
+resBox.innerHTML='<span class="loader">> Scanning B-Tree Nodes...</span>';
+
+try{
+
+const response=await fetch("/api/all");
+const data=await response.text();
+
+if(!data || data.trim()===""){
+
+resBox.innerHTML="> Database is empty.";
+return;
+
+}
+
+const rows=data.trim().split("\n");
+
+let table="ID   | Username         | Email\n";
+table+="-".repeat(50)+"\n";
+
+rows.forEach(row=>{
+
+const parts=row.split(",");
+
+if(parts.length>=3){
+
+const id=parts[0].trim().padEnd(4);
+const name=parts[1].trim().padEnd(16);
+const email=parts[2].trim();
+
+table+=`${id} | ${name} | ${email}\n`;
+
+}
+
+});
+
+resBox.innerHTML=table;
+
+}
+
+catch(err){
+
+resBox.innerHTML=`> Error: ${err}`;
+
+}
+
+}
+
+</script>
+
+</body>
 </html>
