@@ -1,18 +1,18 @@
 # =========================================================
 # Stage 1: Build Stage
-# Java Spring Boot application aur C++ database engine compile karega
+# Java Spring Boot application aur C++ database engine ko compile karega
 # =========================================================
 FROM maven:3.8.4-openjdk-17-slim AS build
 
 # ---------------------------------------------------------
-# Working directory set kar rahe hain
+# Working directory set karna
 # Sab build operations yahi honge
 # ---------------------------------------------------------
 WORKDIR /workspace
 
 # ---------------------------------------------------------
 # C++ compiler install karna
-# core C++ engine compile karne ke liye
+# core C++ engine ko compile karne ke liye
 # ---------------------------------------------------------
 RUN apt-get update && \
     apt-get install -y g++ && \
