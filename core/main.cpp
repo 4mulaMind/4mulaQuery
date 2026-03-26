@@ -3,80 +3,80 @@
 #include <sstream>
 #include <vector>
 #include <cstdio>
+#include <algorithm>
 #include "pager.h"
 #include "common.h"
 
-// Main function jahan se program execution start hota hai
 int main() {
 
+    // Database pager initialize
     Pager db("4mulaQuery.db");
-    // Pager object create kiya gaya hai jo database file ko manage karega
 
     uint32_t row_count = 0;
-    // Database mein kitni rows stored hain uska count
-
     Row temp;
-    // Temporary row structure jo existing data read karne ke liye use hoga
 
-
-    // Database se existing rows count load karna
-    while(db.read_row(&temp, row_count))
+    // Existing rows count load karo
+    while (db.read_row(&temp, row_count))
         row_count++;
 
 
     std::string line;
 
-    // User input continuously read karna
+    // Command line input loop
     while (std::getline(std::cin, line)) {
 
+        // Line ke end se extra spaces aur \r remove karo
+        line.erase(line.find_last_not_of(" \n\r\t") + 1);
+
+        // Empty line ya exit command par program stop
         if (line.empty() || line == "exit")
             break;
-        // Agar input empty ho ya "exit" ho to program band
-
 
         std::stringstream ss(line);
-        // Input string ko parse karne ke liye stringstream
-
         std::string command;
 
-        // Command ko comma ke basis par parse karna
-        if (!std::getline(ss, command, ','))
-            continue;
+        // Command parsing
+        // Agar comma present hai to comma se split karo
+        if (line.find(',') != std::string::npos) {
+            std::getline(ss, command, ',');
+        }
+        else {
+            ss >> command;
+        }
 
 
         // INSERT COMMAND
         if (command == "insert") {
 
             Row row;
-            // Nayi row create
-
             std::string id_str, name, email;
 
-            // id, username aur email ko parse karna
+            // ID, name aur email ko comma se parse karo
             if (std::getline(ss, id_str, ',') &&
                 std::getline(ss, name, ',') &&
                 std::getline(ss, email, ',')) {
 
                 try {
 
+                    // String ID ko integer mein convert
                     row.id = std::stoi(id_str);
-                    // String id ko integer mein convert karna
 
+                    // Username copy into fixed char array
                     snprintf(row.username, USERNAME_SIZE, "%s", name.c_str());
-                    // Username ko fixed size char array mein store karna
 
+                    // Email copy into fixed char array
                     snprintf(row.email, EMAIL_SIZE, "%s", email.c_str());
-                    // Email ko fixed size char array mein store karna
 
+                    // Row ko disk par write karo
                     db.write_row(&row, row_count++);
-                    // Row ko database mein write karna
 
-                    std::cout << "Executed.\n";
+                    // Java API ko success signal
+                    std::cout << "Executed.\n" << std::flush;
 
-                } catch (...) {
+                }
+                catch (...) {
 
-                    std::cout << "Error: ID format\n";
-                    // Agar ID integer na ho to error
+                    std::cout << "Error: Invalid ID format\n" << std::flush;
                 }
             }
         }
@@ -87,12 +87,23 @@ int main() {
 
             Row r;
 
-            // Saari rows database se read karke print karna
-            for (uint32_t i = 0; i < row_count; i++) {
+            // Agar database empty ho
+            if (row_count == 0) {
 
-                if (db.read_row(&r, i)) {
+                std::cout << "Database is empty.\n" << std::flush;
+            }
+            else {
 
-                    std::cout << r.id << "," << r.username << "," << r.email << "\n";
+                // Har row read karke print karo
+                for (uint32_t i = 0; i < row_count; i++) {
+
+                    if (db.read_row(&r, i)) {
+
+                        std::cout << r.id << "," 
+                                  << r.username << "," 
+                                  << r.email << "\n"
+                                  << std::flush;
+                    }
                 }
             }
         }
@@ -101,39 +112,46 @@ int main() {
         // SEARCH COMMAND
         else if (command == "search") {
 
-            std::string search_id_str;
+            std::string s_id;
 
-            if (std::getline(ss, search_id_str, ',')) {
+            if (std::getline(ss, s_id, ',')) {
 
-                uint32_t search_id = std::stoi(search_id_str);
-                // Search ID ko integer mein convert
+                try {
 
-                Row r;
-                bool found = false;
+                    uint32_t search_id = std::stoi(s_id);
 
-                // Har row check karna
-                for (uint32_t i = 0; i < row_count; i++) {
+                    Row r;
+                    bool found = false;
 
-                    if (db.read_row(&r, i) && r.id == search_id) {
+                    // Row by row search
+                    for (uint32_t i = 0; i < row_count; i++) {
 
-                        std::cout << r.id << "," << r.username << "," << r.email << "\n";
-                        found = true;
-                        break;
+                        if (db.read_row(&r, i) && r.id == search_id) {
+
+                            std::cout << r.id << ","
+                                      << r.username << ","
+                                      << r.email << "\n"
+                                      << std::flush;
+
+                            found = true;
+                            break;
+                        }
                     }
+
+                    // Agar record na mile
+                    if (!found)
+
+                        std::cout << "ID "
+                                  << search_id
+                                  << " Not Found.\n"
+                                  << std::flush;
                 }
+                catch (...) {
 
-                if(!found)
-                    std::cout << "ID " << search_id << " Not Found.\n";
-                // Agar ID na mile
+                    std::cout << "Error: Search ID format\n"
+                              << std::flush;
+                }
             }
-        }
-
-
-        // DELETE COMMAND (Future Feature)
-        else if (command == "delete") {
-
-            std::cout << "Delete coming soon in B-Tree update.\n";
-            // Future mein B-Tree indexing ke saath delete implement hoga
         }
     }
 

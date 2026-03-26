@@ -243,51 +243,64 @@
    2. Main Database Operation Logic
 =================================== */
 
+      // Ye function database operations handle karta hai (insert, search, all)
       async function operate(type) {
-        const id = document.getElementById("id").value;
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-
+        // HTML page se input fields aur result box ko select kar rahe hain
+        const idInput = document.getElementById("id");
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
         const resBox = document.getElementById("results");
 
-        /* ID validation */
+        // User ne jo values dali hain unko read kar rahe hain
+        const id = idInput.value;
+        const name = nameInput.value;
+        const email = emailInput.value;
 
+        // Check kar rahe hain ki ID empty to nahi hai
         if (!id) {
-          alert("Bhai, ID dalna zaroori hai!");
+          alert("ID is required.");
           return;
         }
 
-        /* API endpoint build */
-
+        // Base API URL bana rahe hain
         let url = `/api/${type}?id=${id}`;
 
-        /* Insert validation */
-
+        // Agar operation insert hai to name aur email bhi bhejna padega
         if (type === "insert") {
+          // Validation check kar rahe hain
           if (!name || !email) {
-            alert("Bhai, Insert ke liye Name aur Email dono chahiye!");
+            alert("Name and Email are required for insert operation.");
             return;
           }
 
-          url += `&name=${name}&email=${email}`;
+          // encodeURIComponent use kar rahe hain taaki spaces aur special characters safe rahein
+          url += `&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
         }
 
-        resBox.innerHTML = `<span class="loader">> Executing ${type.toUpperCase()} command...</span>`;
-
-        /* API request */
+        // User ko loading message dikha rahe hain
+        resBox.innerHTML = `> Executing ${type.toUpperCase()} command...`;
 
         try {
+          // Backend API ko request bhej rahe hain
           const res = await fetch(url);
+
+          // Response ko text format mein read kar rahe hain
           const data = await res.text();
 
+          // Result ko UI mein display kar rahe hain
           resBox.innerHTML = `> ${data}`;
 
-          /* Auto refresh database view */
+          // Agar insert successful hua to input fields clear kar do
+          if (type === "insert" && data.includes("Executed")) {
+            idInput.value = "";
+            nameInput.value = "";
+            emailInput.value = "";
 
-          if (type !== "search") {
-            setTimeout(fetchAll, 1500);
+            // 1 second baad updated data fetch kar lenge
+            setTimeout(fetchAll, 1000);
           }
         } catch (err) {
+          // Agar network ya server error aaye to user ko show karo
           resBox.innerHTML = `> Error: ${err}`;
         }
       }

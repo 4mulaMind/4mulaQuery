@@ -20,24 +20,30 @@ private:
 
 public:
 
-    // Constructor: jab Pager object create hota hai tab call hota hai
+        // Constructor: jab Pager object create hota hai tab call hota hai
+        // Pager constructor with error handling
     Pager(std::string fname) : filename(fname) {
 
-        // File ko binary mode mein open karne ki koshish
-        // ios::in  -> read mode
-        // ios::out -> write mode
-        // ios::binary -> binary data read/write
+        // File ko read + write + binary mode mein open karne ki koshish
         file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
 
         if (!file.is_open()) {
 
-            // Agar file exist nahi karti to pehle nayi file create karo
+            // Agar file exist nahi karti to nayi file create karo
             file.open(filename, std::ios::out | std::ios::binary);
 
+            // File create hone ke baad close karo
             file.close();
 
-            // Phir usko read + write mode mein dubara open karo
+            // Phir dubara read + write mode mein open karo
             file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
+        }
+
+        // Agar phir bhi file open na ho paaye
+        if (!file.is_open()) {
+
+            std::cerr << "CRITICAL ERROR: Could not open database file: "
+                    << fname << std::endl;
         }
     }
 

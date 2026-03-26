@@ -1,7 +1,7 @@
 package com.formulaquery.api;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.BufferedReader;                     // Input/Output streams ke liye
+import java.io.BufferedWriter;  // REST API annotations
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
@@ -10,92 +10,117 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// Ye Spring Boot REST Controller hai jo 4mulaQuery engine ko HTTP API se connect karta hai
-@RestController
-@RequestMapping("/api")
+@RestController                      // Ye class REST API controller hai
+@RequestMapping("/api")              // Sab endpoints ka base URL /api hoga
 public class ApiController {
 
-    private static final String ENGINE_PATH = "core/4mulaQuery";
-    // Ye path hai jahan C++ database engine executable located hai
+    // Engine ka path jaha C++ database engine compiled hai
+    // Render ya server environment ke liye relative path use kiya gaya hai
+    private static final String ENGINE_PATH = "./core/4mulaQuery";
 
-    
+    // ---------------------------------------------
+    // INSERT API
+    // Example: /api/insert?id=1&name=Abdul&email=test@test.com
+    // ---------------------------------------------
     @GetMapping("/insert")
-    public String insertData(@RequestParam int id, @RequestParam String name, @RequestParam String email) {
+    public String insertData(@RequestParam int id,
+                             @RequestParam String name,
+                             @RequestParam String email) {
 
-        // Client se id, name aur email receive kiya jata hai
-        // Command ko engine ke expected format mein convert kiya jata hai
-        // Example command: insert,1,Abdul Qadir,email@test.com
-
+        // Engine ko command format bhej rahe hain
+        // insert,1,Abdul,test@test.com
         return executeCommand("insert," + id + "," + name + "," + email);
     }
 
-
+    // ---------------------------------------------
+    // GET ALL DATA API
+    // Example: /api/all
+    // ---------------------------------------------
     @GetMapping("/all")
     public String getAllData() {
 
-        // Ye API database ki saari rows fetch karegi
-        // Engine ko "all," command send kiya jata hai
-
+        // Engine command jo sab rows return karega
         return executeCommand("all,");
     }
 
-
+    // ---------------------------------------------
+    // SEARCH BY ID API
+    // Example: /api/search?id=5
+    // ---------------------------------------------
     @GetMapping("/search")
     public String search(@RequestParam int id) {
 
-        // Ye API specific ID ke record ko search karegi
-        // Example command: search,1
-
+        // Engine ko search command bhej rahe hain
         return executeCommand("search," + id);
     }
 
-
+    // ---------------------------------------------
+    // CORE METHOD
+    // Ye function C++ database engine ko run karta hai
+    // aur usko command send karta hai
+    // ---------------------------------------------
     private String executeCommand(String cmd) {
-
-        // Ye method C++ database engine ko command execute karne ke liye call karta hai
 
         StringBuilder output = new StringBuilder();
 
         try {
 
-            Process process = new ProcessBuilder(ENGINE_PATH).start();
-            // Engine executable ko start kiya jata hai
+            // ProcessBuilder C++ executable run karega
+            ProcessBuilder pb = new ProcessBuilder(ENGINE_PATH);
 
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(process.getOutputStream()));
+            // Engine ke errors bhi output stream me merge ho jayenge
+            pb.redirectErrorStream(true);
 
+            // Engine process start
+            Process process = pb.start();
+
+            // Engine ko command bhejna
+            BufferedWriter writer =
+                    new BufferedWriter(
+                            new OutputStreamWriter(process.getOutputStream()));
+
+            // Command send
             writer.write(cmd + "\nexit\n");
-            // Command engine ko send ki jati hai
-            // exit command engine ko terminate karne ke liye
-
             writer.flush();
             writer.close();
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
+            // Engine ka output read karna
+            BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(process.getInputStream()));
 
             String line;
 
-            // Engine se output read kiya jata hai
+            // Engine ke response ko line by line read karna
             while ((line = reader.readLine()) != null) {
 
-                if (!line.trim().isEmpty() && !line.contains("Executed")) {
+                // Debug ke liye console me print
+                System.out.println("Engine Say: " + line);
 
+                // Empty lines ignore
+                if (!line.trim().isEmpty()) {
                     output.append(line).append("\n");
-                    // Useful output ko response mein add kiya jata hai
                 }
             }
 
-            process.waitFor();
-            // Process ke complete hone ka wait
+            // Process finish hone ka wait
+            int exitCode = process.waitFor();
+
+            // Agar process error code ke saath exit hua
+            if (exitCode != 0) {
+                return "Engine Error: Process exited with code "
+                        + exitCode + "\n" + output.toString();
+            }
 
         } catch (Exception e) {
 
-            return "Error: " + e.getMessage();
-            // Agar koi error aaye to error message return
+            // Java side error handling
+            return "Java Side Error: " + e.getMessage();
         }
 
-        // Agar output empty hai to default message return
-        return output.length() > 0 ? output.toString() : "No response from engine.";
+        // Agar output mila to return karo
+        return output.length() > 0
+                ? output.toString()
+                : "No response from engine.";
     }
 }
