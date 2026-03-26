@@ -1,38 +1,22 @@
 <!-- @format -->
-/*============================================================ 4mulaQuery -
-Intelligent Database Engine
-============================================================ File Location:
-src/main/resources/static/index.html Purpose: Frontend interface for interacting
-with the 4mulaQuery engine. Features: • SQL Query Input • Execute Query Button •
-Result Output Panel • Clean UI
-============================================================*/
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-
-    <!-- Responsive Layout -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>4mulaQuery | Intelligent Database Engine</title>
 
-    <!-- Google Font -->
+    <!-- Google Fonts: Poppins -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="/Logo.jpg" />
-
     <style>
-      /* =====================================================
-   COLOR THEME
-   Navy Blue  : #001f3f
-   Gold       : #d4af37
-   Beige      : #f5f5dc
-===================================================== */
-
+      /* ===============================
+         GLOBAL STYLES
+      ================================ */
       body {
         font-family: "Poppins", sans-serif;
         background: #f5f5dc;
@@ -40,10 +24,6 @@ Result Output Panel • Clean UI
         padding: 20px;
         color: #001f3f;
       }
-
-      /* =====================================================
-   MAIN CONTAINER
-===================================================== */
 
       .container {
         max-width: 900px;
@@ -55,10 +35,9 @@ Result Output Panel • Clean UI
         border: 2px solid #d4af37;
       }
 
-      /* =====================================================
-   HEADER SECTION
-===================================================== */
-
+      /* ===============================
+         HEADER SECTION
+      ================================ */
       .header-section {
         text-align: center;
         margin-bottom: 25px;
@@ -80,10 +59,6 @@ Result Output Panel • Clean UI
         color: #d4af37;
       }
 
-      /* =====================================================
-   DYNAMIC TEXT
-===================================================== */
-
       #dynamic-text {
         font-size: 1.2em;
         color: #b29400;
@@ -92,10 +67,9 @@ Result Output Panel • Clean UI
         margin-bottom: 25px;
       }
 
-      /* =====================================================
-   SECTION BLOCK
-===================================================== */
-
+      /* ===============================
+         SECTIONS
+      ================================ */
       .section {
         margin-bottom: 25px;
         padding: 20px;
@@ -104,10 +78,9 @@ Result Output Panel • Clean UI
         border-left: 6px solid #001f3f;
       }
 
-      /* =====================================================
-   INPUT GROUP
-===================================================== */
-
+      /* ===============================
+         FORM STYLES
+      ================================ */
       .input-group {
         display: flex;
         gap: 10px;
@@ -122,10 +95,6 @@ Result Output Panel • Clean UI
         min-width: 150px;
         outline: none;
       }
-
-      /* =====================================================
-   BUTTON STYLE
-===================================================== */
 
       button {
         padding: 12px 25px;
@@ -143,10 +112,9 @@ Result Output Panel • Clean UI
         color: #001f3f;
       }
 
-      /* =====================================================
-   RESULT CONSOLE
-===================================================== */
-
+      /* ===============================
+         RESULTS / OUTPUT PANEL
+      ================================ */
       #results {
         margin-top: 30px;
         padding: 20px;
@@ -161,8 +129,6 @@ Result Output Panel • Clean UI
         max-height: 320px;
       }
 
-      /* Loader */
-
       .loader {
         color: #d4af37;
         font-style: italic;
@@ -172,76 +138,62 @@ Result Output Panel • Clean UI
 
   <body>
     <div class="container">
-      <!-- =====================================================
-     HEADER
-===================================================== -->
-
+      <!-- ===============================
+           HEADER SECTION
+      ================================ -->
       <div class="header-section">
-        <img src="/Logo.jpg" class="header-logo" />
-
+        <img src="/Logo.jpg" class="header-logo" alt="Logo" />
         <h1>4mula<span>Query</span></h1>
-
         <div id="dynamic-text"></div>
       </div>
 
-      <!-- =====================================================
-     DATABASE OPERATIONS
-===================================================== -->
-
+      <!-- ===============================
+           DATABASE OPERATIONS
+      ================================ -->
       <div class="section">
         <h3>📥 Database Operations</h3>
-
         <div class="input-group">
           <input type="number" id="id" placeholder="ID (Required)" />
-          <input type="text" id="name" placeholder="Name (Insert)" />
-          <input type="email" id="email" placeholder="Email (Insert)" />
+          <input type="text" id="name" placeholder="Name" />
+          <input type="email" id="email" placeholder="Email" />
         </div>
-
         <div class="input-group" style="margin-top: 15px">
           <button onclick="operate('insert')">Insert</button>
-
           <button onclick="operate('search')">Search</button>
-
           <button onclick="operate('delete')">Delete</button>
         </div>
       </div>
 
-      <!-- =====================================================
-     DATA VIEW
-===================================================== -->
-
+      <!-- ===============================
+           DATA EXPLORER
+      ================================ -->
       <div class="section">
         <h3>📂 Data Explorer</h3>
-
         <button onclick="fetchAll()">Refresh Database View</button>
       </div>
 
-      <!-- =====================================================
-     RESULT CONSOLE
-===================================================== -->
-
+      <!-- ===============================
+           OUTPUT PANEL
+      ================================ -->
       <div id="results">> Engine Ready. Waiting for command...</div>
     </div>
 
     <script>
-      /* =====================================================
-   TYPING ANIMATION
-===================================================== */
-
+      /* =================================================
+         DYNAMIC HEADER TEXT TYPING EFFECT
+      ================================================= */
       const phrases = [
         "Fastest C++ B-Tree Engine",
         "Developed by Abdul Qadir",
         "Spring Boot + Docker Integrated",
       ];
-
-      let pIndex = 0;
-      let cIndex = 0;
-      let deleting = false;
+      let pIndex = 0,
+        cIndex = 0,
+        deleting = false;
 
       function type() {
         const text = phrases[pIndex];
         const target = document.getElementById("dynamic-text");
-
         target.textContent = deleting
           ? text.substring(0, cIndex--)
           : text.substring(0, cIndex++);
@@ -257,20 +209,18 @@ Result Output Panel • Clean UI
           setTimeout(type, deleting ? 50 : 100);
         }
       }
-
       window.onload = type;
 
-      /* =====================================================
-   DATABASE OPERATION FUNCTION
-===================================================== */
-
+      /* =================================================
+         DATABASE OPERATIONS (INSERT, SEARCH, DELETE)
+      ================================================= */
       async function operate(type) {
         const id = document.getElementById("id").value;
         const name = document.getElementById("name").value;
         const email = document.getElementById("email").value;
-
         const resBox = document.getElementById("results");
 
+        // ID validation
         if (!id || id <= 0) {
           alert("Valid ID required");
           return;
@@ -280,33 +230,27 @@ Result Output Panel • Clean UI
 
         if (type === "insert") {
           if (!name || !email) {
-            alert("Name and Email required for insert");
+            alert("Name and Email required");
             return;
           }
-
           url += `&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
         }
 
-        /* Execution time measure */
-
+        // Show loader
         const start = performance.now();
-
         resBox.innerHTML = `<span class="loader">> Executing ${type.toUpperCase()}...</span>`;
 
         try {
           const response = await fetch(url);
           const data = await response.text();
-
-          const end = performance.now();
-          const time = (end - start).toFixed(2);
-
+          const time = (performance.now() - start).toFixed(2);
           resBox.innerHTML = `${data}\n\nExecuted in ${time} ms`;
 
+          // Clear form and refresh all if insert success
           if (type === "insert" && data.includes("Executed")) {
             document.getElementById("id").value = "";
             document.getElementById("name").value = "";
             document.getElementById("email").value = "";
-
             setTimeout(fetchAll, 1000);
           }
         } catch (err) {
@@ -314,13 +258,11 @@ Result Output Panel • Clean UI
         }
       }
 
-      /* =====================================================
-   FETCH ALL DATABASE RECORDS
-===================================================== */
-
+      /* =================================================
+         FETCH ALL DATA FROM DATABASE
+      ================================================= */
       async function fetchAll() {
         const resBox = document.getElementById("results");
-
         resBox.innerHTML =
           '<span class="loader">> Scanning B-Tree Nodes...</span>';
 
@@ -328,25 +270,19 @@ Result Output Panel • Clean UI
           const response = await fetch("/api/all");
           const data = await response.text();
 
-          if (!data || data.trim() === "") {
+          if (!data || !data.trim()) {
             resBox.innerHTML = "> Database is empty.";
             return;
           }
 
           const rows = data.trim().split("\n");
-
-          let table = "ID   | Username         | Email\n";
-          table += "-".repeat(50) + "\n";
+          let table =
+            "ID   | Username         | Email\n" + "-".repeat(50) + "\n";
 
           rows.forEach((row) => {
             const parts = row.split(",");
-
             if (parts.length >= 3) {
-              const id = parts[0].trim().padEnd(4);
-              const name = parts[1].trim().padEnd(16);
-              const email = parts[2].trim();
-
-              table += `${id} | ${name} | ${email}\n`;
+              table += `${parts[0].trim().padEnd(4)} | ${parts[1].trim().padEnd(16)} | ${parts[2].trim()}\n`;
             }
           });
 
