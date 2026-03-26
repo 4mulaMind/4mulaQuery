@@ -31,4 +31,4 @@ RUN chmod +x ./core/4mulaQuery
 RUN touch 4mulaQuery.db && chmod 666 4mulaQuery.db
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dserver.port=${PORT:8080}", "-jar", "app.jar"]
