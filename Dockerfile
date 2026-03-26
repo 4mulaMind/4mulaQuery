@@ -5,14 +5,13 @@ WORKDIR /workspace
 # Install G++ 
 RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
 
-# Copy full project
 COPY . .
 
-# 1. Java Build (Double app folder path fix)
-# Screenshot ke hisaab se pom.xml 'app/app/' ke andar hai
-RUN cd app/app && mvn clean package -DskipTests
+# ⭐ FIX: Find the directory containing pom.xml and build there
+RUN POM_DIR=$(find . -name "pom.xml" -exec dirname {} \;) && \
+    cd $POM_DIR && mvn clean package -DskipTests
 
-# 2. C++ Build
+# 2. C++ Build (Core folder check)
 RUN g++ -O3 core/*.cpp -o core/4mulaQuery
 
 # Stage 2: Run the application
@@ -22,10 +21,8 @@ WORKDIR /app
 # Runtime libraries
 RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
 
-# JAR copy karo (Target path bhi update kiya hai)
-COPY --from=build /workspace/app/app/target/*.jar app.jar
-
-# Compiled C++ engine copy karo
+# ⭐ FIX: Find and copy the generated JAR no matter where it is
+COPY --from=build /workspace/**/target/*.jar app.jar
 COPY --from=build /workspace/core ./core
 
 # Permissions for Render
