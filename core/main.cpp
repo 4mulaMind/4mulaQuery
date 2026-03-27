@@ -53,7 +53,7 @@ public:
      * upon initialization.
      * ----------------------------------------------------
      */
-    DatabaseEngine() : db("./4mulaQuery.db"), row_count(0) {
+    DatabaseEngine() : db("data/4mulaQuery.db"), row_count(0)  {
         Row temp;
         // Scan the binary file to recover the row count
         while (db.read_row(&temp, row_count)) {
@@ -177,6 +177,7 @@ public:
                         db.write_row(&remaining_rows[i], i);
                     }
                     row_count = remaining_rows.size();
+                    db.truncate(row_count);  // ← YEH ADD KARO
                     std::cout << "Deleted ID " << delete_id << ".\n" << std::flush;
                 } else {
                     std::cout << "ID " << delete_id << " Not Found.\n" << std::flush;
