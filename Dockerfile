@@ -36,7 +36,7 @@ RUN mvn -f app/pom.xml clean package -DskipTests
 # - Output binary: core/4mulaQuery
 # - C++17 standard use kiya gaya hai
 # -------------------------------------------------------------
-RUN g++ -O3 -std=c++17 core/*.cpp -o core/4mulaQuery
+RUN g++ -O3 -std=c++17 -static-libgcc -static-libstdc++ core/*.cpp -o core/4mulaQuery
 
 
 # =============================================================
@@ -47,7 +47,7 @@ RUN g++ -O3 -std=c++17 core/*.cpp -o core/4mulaQuery
 # - Java runtime + compiled C++ engine
 # =============================================================
 
-FROM eclipse-temurin:17-jdk-focal
+FROM eclipse-temurin:17-jre-jammy
 
 # Application directory
 WORKDIR /app
