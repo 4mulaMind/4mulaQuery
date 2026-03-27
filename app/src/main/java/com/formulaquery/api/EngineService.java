@@ -25,7 +25,6 @@ package com.formulaquery.api;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
@@ -56,22 +55,40 @@ public class EngineService {
      * @param command The CSV formatted instruction
      * @return String output from the C++ Kernel
      */
+    /**
+ * Executes a command on the C++ engine via ProcessBuilder.
+ * 
+ * @param command The command string (e.g., insert, search, delete)
+ * @return The output from the C++ engine or error message if failed
+ */
     public String executeCommand(String command) {
         StringBuilder output = new StringBuilder();
 
         try {
-            // 1. Spawning the C++ Process
-            Process process = Runtime.getRuntime().exec(enginePath);
+            // ProcessBuilder: C++ engine ko run karne ke liye
+            // enginePath = path to the compiled C++ binary
+            ProcessBuilder pb = new ProcessBuilder(enginePath);
 
-            // 2. Writing to C++ stdin (Standard Input)
+            // Redirect error stream to standard output
+            // Taaki C++ errors bhi output me dikh sake
+            pb.redirectErrorStream(true);
+
+            // Start the C++ engine process
+            Process process = pb.start();
+
+            // -------------------------
+            // 1️⃣ Write command to engine
+            // -------------------------
             try (BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(process.getOutputStream()))) {
                 writer.write(command);
-                writer.newLine(); // Simulating 'Enter' key
+                writer.newLine();
                 writer.flush();
             }
 
-            // 3. Reading from C++ stdout (Standard Output)
+            // -------------------------
+            // 2️⃣ Read output from engine
+            // -------------------------
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
                 String line;
@@ -80,16 +97,15 @@ public class EngineService {
                 }
             }
 
-            // 4. Waiting for process to finish
+            // Wait for the process to finish
             process.waitFor();
 
-        } catch (IOException | InterruptedException e) {
-            // Agar process interrupt ho jaye toh status restore karna best practice hai
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            return "> Bridge Error: Critical communication failure.\n" + e.getMessage();
+        } catch (Exception e) {
+            // Agar koi exception aaya to return kar do error message
+            return "> Bridge Error: " + e.getMessage();
         }
+
+        // Return the output from C++ engine
         return output.toString();
     }
 };

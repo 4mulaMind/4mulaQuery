@@ -1,75 +1,46 @@
-/*
-============================================================
-4mulaQuery - REST API Command Bridge
-============================================================
-File: ApiController.java
-Author: Abdul Qadir
-Purpose: Connects Web UI to C++ B-Tree Engine
-============================================================
-*/
-
 package com.formulaquery.api;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.PostConstruct; 
-
 /**
- * ====================================================
- * CLASS: ApiController
- * ====================================================
- * Acts as the communication gateway. It receives HTTP 
- * requests and dispatches formatted instructions to 
- * the underlying C++ Database Kernel.
- * ====================================================
+ * REST API Controller for 4mulaQuery
+ * Base URL: /api
+ * 
+ * Provides endpoints to:
+ * - Insert data
+ * - Fetch all records
+ * - Search by ID
+ * - Delete by ID
  */
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
-    /**
-     * Injects the binary path from application.properties.
-     * Default Fallback: ./core/4mulaQuery
-     */
-    @Value("${database.engine.path:./core/4mulaQuery}")
-    private String enginePath;
-
+    // EngineService bean inject kiya ja raha hai
+    @Autowired
     private EngineService engineService;
 
     /**
-     * INITIALIZATION
-     * Triggered automatically after dependency injection.
-     */
-    @PostConstruct
-    public void init() {
-        // Ensuring the bridge is ready with the correct path
-        this.engineService = new EngineService(enginePath);
-    }
-
-    /**
-     * ----------------------------------------------------
-     * ENDPOINT: /api/insert
-     * ----------------------------------------------------
+     * Insert data into database
+     * Example: /api/insert?id=1&name=Abdul&email=test@test.com
      */
     @GetMapping("/insert")
     public String insertData(
             @RequestParam int id,
             @RequestParam String name,
             @RequestParam String email) {
-        
-        // Command Structure: insert,id,name,email
+
         String command = String.format("insert,%d,%s,%s", id, name, email);
         return engineService.executeCommand(command);
     }
 
     /**
-     * ----------------------------------------------------
-     * ENDPOINT: /api/all
-     * ----------------------------------------------------
+     * Get all data from database
+     * Example: /api/all
      */
     @GetMapping("/all")
     public String getAllData() {
@@ -77,9 +48,8 @@ public class ApiController {
     }
 
     /**
-     * ----------------------------------------------------
-     * ENDPOINT: /api/search
-     * ----------------------------------------------------
+     * Search data by ID
+     * Example: /api/search?id=5
      */
     @GetMapping("/search")
     public String search(@RequestParam int id) {
@@ -87,13 +57,11 @@ public class ApiController {
     }
 
     /**
-     * ----------------------------------------------------
-     * ENDPOINT: /api/delete
-     * ----------------------------------------------------
+     * Delete data by ID
+     * Example: /api/delete?id=5
      */
     @GetMapping("/delete")
     public String deleteData(@RequestParam int id) {
-        // Cleaned the trailing comma for kernel stability
         return engineService.executeCommand("delete," + id);
     }
 }
