@@ -2098,55 +2098,164 @@ Theme: Navy + Gold Luxury Tech Theme
         </div>
       </div>
 
-      <!-- =====================================================
-     JAVASCRIPT START
-===================================================== -->
 <script>
-/* =================================================
-   TYPING ANIMATION — naam nahi hai
-================================================= */
+/* ================================================
+   HERO TYPING ANIMATION
+   Dashboard hero section ke liye dynamic typing effect
+================================================ */
+
+// Hero section me rotate hone wale phrases
 const phrases = [
   "Fastest C++ B-Tree Engine",
   "Spring Boot + Docker Integrated",
   "Intelligent Query Processing",
 ];
-let pIndex=0, cIndex=0, deleting=false, typingTimer=null;
+
+// Animation state variables
+let pIndex = 0;      // current phrase index
+let cIndex = 0;      // current character index
+let deleting = false; // typing mode ya deleting mode
+let typingTimer = null; // setTimeout reference
+
+
+/* ================================================
+   START TYPING ANIMATION
+   Typing animation ko initialize karta hai
+================================================ */
 
 function startTyping(){
+
+  // Agar animation already chal raha ho to stop karo
   if(typingTimer) clearTimeout(typingTimer);
-  pIndex=0; cIndex=0; deleting=false;
+
+  // Animation state reset
+  pIndex = 0;
+  cIndex = 0;
+  deleting = false;
+
+  // Typing process start
   typeNext();
 }
 
+
+/* ================================================
+   MAIN TYPING ENGINE
+   Character by character typing & deleting
+================================================ */
+
 function typeNext(){
+
+  // Dynamic text element select
   const el = document.getElementById("dynamic-text");
+
+  // Agar element exist nahi karta to function stop
   if(!el) return;
+
+  // Current phrase select
   const text = phrases[pIndex];
-  el.textContent = deleting ? text.substring(0,cIndex--) : text.substring(0,cIndex++);
+
+  // Typing ya deleting ke according text update
+  el.textContent = deleting
+    ? text.substring(0, cIndex--)  // deleting mode
+    : text.substring(0, cIndex++); // typing mode
+
+
+  /* -------------------------------
+     CASE 1 : Phrase fully typed
+  -------------------------------- */
+
   if(!deleting && cIndex > text.length){
-    deleting=true; typingTimer=setTimeout(typeNext,2000);
-  } else if(deleting && cIndex===0){
-    deleting=false;
-    pIndex=(pIndex+1)%phrases.length;
-    typingTimer=setTimeout(typeNext,500);
-  } else {
-    typingTimer=setTimeout(typeNext, deleting?50:100);
+
+    deleting = true; // ab delete start hoga
+
+    // Delete start hone se pehle pause
+    typingTimer = setTimeout(typeNext, 2000);
+  }
+
+
+  /* -------------------------------
+     CASE 2 : Phrase completely deleted
+  -------------------------------- */
+
+  else if(deleting && cIndex === 0){
+
+    deleting = false;
+
+    // Next phrase par move
+    pIndex = (pIndex + 1) % phrases.length;
+
+    typingTimer = setTimeout(typeNext, 500);
+  }
+
+
+  /* -------------------------------
+     CASE 3 : Continue typing / deleting
+  -------------------------------- */
+
+  else{
+
+    typingTimer = setTimeout(
+      typeNext,
+      deleting ? 50 : 100 // deleting fast, typing slow
+    );
   }
 }
 
 /* =================================================
    AUTH
 ================================================= */
-let currentUser=null, generatedOtp=null, otpEmail=null;
+/* =================================================
+   GLOBAL STATE VARIABLES
+   User session aur OTP related data store karte hain
+================================================= */
 
-function getUsers()   { return JSON.parse(localStorage.getItem('fq_users')  ||'{}');   }
-function saveUsers(u) { localStorage.setItem('fq_users',JSON.stringify(u));            }
-function getSession() { return JSON.parse(localStorage.getItem('fq_session')||'null'); }
-function saveSession(u){ localStorage.setItem('fq_session',JSON.stringify(u));         }
+let currentUser = null;   // currently logged-in user
+let generatedOtp = null;  // generated OTP for password reset
+let otpEmail = null;      // email jiske liye OTP generate hua
+
+
+/* =================================================
+   LOCAL STORAGE HELPERS
+   Users aur session data ko localStorage me store
+================================================= */
+
+// All registered users get karo
+function getUsers() {
+  return JSON.parse(localStorage.getItem('fq_users') || '{}');
+}
+
+// Users ko localStorage me save karo
+function saveUsers(u) {
+  localStorage.setItem('fq_users', JSON.stringify(u));
+}
+
+// Active session get karo
+function getSession() {
+  return JSON.parse(localStorage.getItem('fq_session') || 'null');
+}
+
+// Current session save karo
+function saveSession(u) {
+  localStorage.setItem('fq_session', JSON.stringify(u));
+}
+
+
+/* =================================================
+   PAGE NAVIGATION
+   Login / Signup / Forgot Password pages switch
+================================================= */
 
 function showPage(id){
-  ['loginPage','signupPage','forgotPage'].forEach(p=>{ document.getElementById(p).style.display='none'; });
+
+  // Sab pages hide karo
+  ['loginPage','signupPage','forgotPage'].forEach(p=>{
+    document.getElementById(p).style.display='none';
+  });
+
+  // Selected page show karo
   document.getElementById(id).style.display='flex';
+
+  // Forgot password flow reset
   if(id==='forgotPage'){
     document.getElementById('fStep1').style.display='block';
     document.getElementById('fStep2').style.display='none';
@@ -2154,226 +2263,641 @@ function showPage(id){
   }
 }
 
+
+/* =================================================
+   TOAST NOTIFICATION
+   Error / Success messages display
+================================================= */
+
 function showToast(id,msg,type='error'){
-  const el=document.getElementById(id);
-  el.textContent=msg; el.className=`toast ${type} show`;
-  setTimeout(()=>el.className=`toast ${type}`,3500);
+
+  const el = document.getElementById(id);
+
+  // Message set karo
+  el.textContent = msg;
+
+  // Toast style apply
+  el.className = `toast ${type} show`;
+
+  // Auto hide after 3.5 sec
+  setTimeout(()=>{
+    el.className = `toast ${type}`;
+  },3500);
 }
+
+
+/* =================================================
+   LOGIN FUNCTION
+   User authentication aur session start
+================================================= */
 
 function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
-  if(!email||!pass) return showToast('loginToast','Please fill all fields');
-  const users=getUsers();
-  if(!users[email]) return showToast('loginToast','Account not found. Sign up first.');
-  if(users[email].password!==btoa(pass)) return showToast('loginToast','Incorrect password.');
-  currentUser=users[email]; saveSession(currentUser); loadApp();
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+
+  // Validation
+  if(!email || !pass)
+    return showToast('loginToast','Please fill all fields');
+
+  const users = getUsers();
+
+  // Account exist check
+  if(!users[email])
+    return showToast('loginToast','Account not found. Sign up first.');
+
+  // Password verify
+  if(users[email].password !== btoa(pass))
+    return showToast('loginToast','Incorrect password.');
+
+  // Login success
+  currentUser = users[email];
+
+  // Session save
+  saveSession(currentUser);
+
+  // App load
+  loadApp();
 }
 
+
+/* =================================================
+   SIGNUP FUNCTION
+   New user registration
+================================================= */
+
 function doSignup(){
-  const name=document.getElementById('signupName').value.trim();
-  const email=document.getElementById('signupEmail').value.trim();
-  const pass=document.getElementById('signupPass').value;
-  const pass2=document.getElementById('signupPass2').value;
-  if(!name||!email||!pass) return showToast('signupToast','Please fill all fields');
-  if(pass!==pass2) return showToast('signupToast','Passwords do not match');
-  if(pass.length<6) return showToast('signupToast','Min 6 characters required');
-  const users=getUsers();
-  if(users[email]) return showToast('signupToast','Email already registered.');
-  users[email]={name,email,password:btoa(pass)};
-  saveUsers(users); currentUser=users[email]; saveSession(currentUser);
+
+  const name  = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass  = document.getElementById('signupPass').value;
+  const pass2 = document.getElementById('signupPass2').value;
+
+  // Basic validation
+  if(!name || !email || !pass)
+    return showToast('signupToast','Please fill all fields');
+
+  // Password match
+  if(pass !== pass2)
+    return showToast('signupToast','Passwords do not match');
+
+  // Password length check
+  if(pass.length < 6)
+    return showToast('signupToast','Min 6 characters required');
+
+  const users = getUsers();
+
+  // Email already exist
+  if(users[email])
+    return showToast('signupToast','Email already registered.');
+
+  // New user create
+  users[email] = {
+    name,
+    email,
+    password: btoa(pass)
+  };
+
+  saveUsers(users);
+
+  currentUser = users[email];
+
+  // Session save
+  saveSession(currentUser);
+
+  // Success message
   showToast('signupToast','Account created! Loading...','success');
+
+  // App load
   setTimeout(loadApp,800);
 }
 
+
+/* =================================================
+   SEND OTP
+   Forgot password ke liye OTP generate
+================================================= */
+
 function sendOtp(){
-  const email=document.getElementById('forgotEmail').value.trim();
-  if(!email) return showToast('forgotToast','Enter your email');
-  const users=getUsers();
-  if(!users[email]) return showToast('forgotToast','No account with this email.');
-  otpEmail=email;
-  generatedOtp=Math.floor(1000+Math.random()*9000).toString();
+
+  const email = document.getElementById('forgotEmail').value.trim();
+
+  if(!email)
+    return showToast('forgotToast','Enter your email');
+
+  const users = getUsers();
+
+  if(!users[email])
+    return showToast('forgotToast','No account with this email.');
+
+  // Email store karo
+  otpEmail = email;
+
+  // Random 4 digit OTP generate
+  generatedOtp = Math.floor(1000 + Math.random()*9000).toString();
+
+  // Demo ke liye screen par show
   showToast('forgotToast',`Your OTP: ${generatedOtp}`,'success');
-  setTimeout(()=>{ document.getElementById('fStep1').style.display='none'; document.getElementById('fStep2').style.display='block'; },1200);
+
+  // Next step open
+  setTimeout(()=>{
+    document.getElementById('fStep1').style.display='none';
+    document.getElementById('fStep2').style.display='block';
+  },1200);
 }
 
-function otpNext(el,idx){ if(el.value&&idx<3) document.querySelectorAll('.otp-input')[idx+1].focus(); }
+
+/* =================================================
+   OTP INPUT AUTO FOCUS
+   Next OTP box automatically focus
+================================================= */
+
+function otpNext(el,idx){
+
+  if(el.value && idx<3)
+    document.querySelectorAll('.otp-input')[idx+1].focus();
+}
+
+
+/* =================================================
+   OTP VERIFICATION
+================================================= */
 
 function verifyOtp(){
-  const entered=[...document.querySelectorAll('.otp-input')].map(i=>i.value).join('');
-  if(entered!==generatedOtp) return showToast('forgotToast','Invalid OTP. Try again.');
+
+  // Entered OTP collect
+  const entered = [...document.querySelectorAll('.otp-input')]
+    .map(i=>i.value)
+    .join('');
+
+  // Verify
+  if(entered !== generatedOtp)
+    return showToast('forgotToast','Invalid OTP. Try again.');
+
+  // Move to reset password step
   document.getElementById('fStep2').style.display='none';
   document.getElementById('fStep3').style.display='block';
 }
 
+
+/* =================================================
+   RESET PASSWORD
+================================================= */
+
 function resetPass(){
-  const p1=document.getElementById('newPass').value;
-  const p2=document.getElementById('newPass2').value;
-  if(!p1||p1!==p2) return showToast('forgotToast','Passwords do not match');
-  if(p1.length<6) return showToast('forgotToast','Min 6 characters');
-  const users=getUsers(); users[otpEmail].password=btoa(p1); saveUsers(users);
+
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('newPass2').value;
+
+  if(!p1 || p1!==p2)
+    return showToast('forgotToast','Passwords do not match');
+
+  if(p1.length<6)
+    return showToast('forgotToast','Min 6 characters');
+
+  const users = getUsers();
+
+  users[otpEmail].password = btoa(p1);
+
+  saveUsers(users);
+
   showToast('forgotToast','Password updated! Redirecting...','success');
+
   setTimeout(()=>showPage('loginPage'),1500);
 }
 
+
+/* =================================================
+   LOGOUT FUNCTION
+================================================= */
+
 function doLogout(){
-  localStorage.removeItem('fq_session'); currentUser=null;
+
+  // Session remove
+  localStorage.removeItem('fq_session');
+
+  currentUser = null;
+
+  // App hide
   document.getElementById('app').style.display='none';
+
+  // Stop typing animation
   if(typingTimer) clearTimeout(typingTimer);
+
+  // Login page show
   showPage('loginPage');
 }
 
+
+/* =================================================
+   LOAD MAIN APPLICATION
+================================================= */
+
 function loadApp(){
-  const s=currentUser||getSession(); if(!s) return;
-  currentUser=s;
-  ['loginPage','signupPage','forgotPage'].forEach(p=>{ document.getElementById(p).style.display='none'; });
+
+  const s = currentUser || getSession();
+
+  if(!s) return;
+
+  currentUser = s;
+
+  // Auth pages hide
+  ['loginPage','signupPage','forgotPage'].forEach(p=>{
+    document.getElementById(p).style.display='none';
+  });
+
+  // Main app show
   document.getElementById('app').style.display='block';
-  document.getElementById('userNm').textContent=currentUser.name;
-  document.getElementById('userAv').textContent=currentUser.name[0].toUpperCase();
-  document.getElementById('setName').value=currentUser.name;
-  document.getElementById('setEmail').value=currentUser.email;
+
+  // User info update
+  document.getElementById('userNm').textContent = currentUser.name;
+  document.getElementById('userAv').textContent = currentUser.name[0].toUpperCase();
+
+  // Settings values fill
+  document.getElementById('setName').value = currentUser.name;
+  document.getElementById('setEmail').value = currentUser.email;
+
+  // Start hero typing animation
   startTyping();
+
+  // Load database data
   fetchAll(true);
 }
 
+
+/* =================================================
+   SAVE SETTINGS
+   Update name / password
+================================================= */
+
 function saveSettings(){
-  const name=document.getElementById('setName').value.trim();
-  const pass=document.getElementById('setPass').value;
-  const pass2=document.getElementById('setPass2').value;
-  if(!name) return showToast('setToast','Name cannot be empty');
-  if(pass&&pass!==pass2) return showToast('setToast','Passwords do not match');
-  if(pass&&pass.length<6) return showToast('setToast','Min 6 characters');
-  const users=getUsers();
-  users[currentUser.email].name=name;
-  if(pass) users[currentUser.email].password=btoa(pass);
-  saveUsers(users); currentUser=users[currentUser.email]; saveSession(currentUser);
-  document.getElementById('userNm').textContent=currentUser.name;
-  document.getElementById('userAv').textContent=currentUser.name[0].toUpperCase();
+
+  const name  = document.getElementById('setName').value.trim();
+  const pass  = document.getElementById('setPass').value;
+  const pass2 = document.getElementById('setPass2').value;
+
+  if(!name)
+    return showToast('setToast','Name cannot be empty');
+
+  if(pass && pass!==pass2)
+    return showToast('setToast','Passwords do not match');
+
+  if(pass && pass.length<6)
+    return showToast('setToast','Min 6 characters');
+
+  const users = getUsers();
+
+  users[currentUser.email].name = name;
+
+  if(pass)
+    users[currentUser.email].password = btoa(pass);
+
+  saveUsers(users);
+
+  currentUser = users[currentUser.email];
+
+  saveSession(currentUser);
+
+  // UI update
+  document.getElementById('userNm').textContent = currentUser.name;
+  document.getElementById('userAv').textContent = currentUser.name[0].toUpperCase();
+
   showToast('setToast','Saved successfully!','success');
 }
 
+
+/* =================================================
+   SECTION SWITCHING
+   Dashboard sections change karne ke liye
+================================================= */
+
 function switchSec(name,el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tnav').forEach(n=>n.classList.remove('active'));
+
+  document.querySelectorAll('.section')
+    .forEach(s=>s.classList.remove('active'));
+
+  document.querySelectorAll('.tnav')
+    .forEach(n=>n.classList.remove('active'));
+
   document.getElementById('sec-'+name).classList.add('active');
+
   el.classList.add('active');
 }
 
 /* =================================================
    API
 ================================================= */
-function setLoad(id,on){ document.getElementById(id).classList.toggle('on',on); }
+/* =================================================
+   API FUNCTIONS
+   Backend se data fetch / send karne ke functions
+================================================= */
 
+/* -------------------------------------------------
+   setLoad()
+   Loader ko ON / OFF karne ke liye
+------------------------------------------------- */
+function setLoad(id,on){
+  document.getElementById(id).classList.toggle('on',on);
+}
+
+
+/* -------------------------------------------------
+   renderTable()
+   API se aane wale CSV data ko HTML table me convert karta hai
+------------------------------------------------- */
 function renderTable(data){
+
+  // Agar data empty ho ya "empty" message aaye
   if(!data||!data.trim()||data.includes('empty')||data.includes('Empty'))
     return `<div class="empty"><div class="empty-icon">◈</div>No records found.</div>`;
+
+  // Har row ko split karna
   const rows=data.trim().split('\n').filter(r=>r.includes(','));
-  if(!rows.length) return `<div class="empty"><div class="empty-icon">◈</div>${data}</div>`;
-  let html=`<table class="db-table"><thead><tr><th>#</th><th>ID</th><th>Username</th><th>Email</th></tr></thead><tbody>`;
+
+  // Agar rows nahi milti
+  if(!rows.length)
+    return `<div class="empty"><div class="empty-icon">◈</div>${data}</div>`;
+
+  // Table HTML start
+  let html=`<table class="db-table">
+  <thead>
+  <tr>
+  <th>#</th>
+  <th>ID</th>
+  <th>Username</th>
+  <th>Email</th>
+  </tr>
+  </thead>
+  <tbody>`;
+
+  // Har row ko table row me convert karna
   rows.forEach((row,i)=>{
     const p=row.split(',');
-    if(p.length>=3) html+=`<tr><td>${i+1}</td><td>${p[0].trim()}</td><td>${p[1].trim()}</td><td>${p[2].trim()}</td></tr>`;
+
+    if(p.length>=3)
+      html+=`<tr>
+      <td>${i+1}</td>
+      <td>${p[0].trim()}</td>
+      <td>${p[1].trim()}</td>
+      <td>${p[2].trim()}</td>
+      </tr>`;
   });
+
   return html+'</tbody></table>';
 }
 
+
+/* -------------------------------------------------
+   countRows()
+   Total rows count karta hai
+------------------------------------------------- */
 function countRows(data){
-  if(!data||!data.trim()||data.includes('empty')) return 0;
+
+  if(!data||!data.trim()||data.includes('empty'))
+    return 0;
+
   return data.trim().split('\n').filter(r=>r.includes(',')).length;
 }
 
+
+/* -------------------------------------------------
+   operate()
+   Insert / Delete / Search operations handle karta hai
+------------------------------------------------- */
 async function operate(type){
+
+  // Input values lena
   const id=document.getElementById('opId').value;
   const name=document.getElementById('opName').value;
   const email=document.getElementById('opEmail').value;
-  if(!id||id<=0){ alert('Valid ID required'); return; }
+
+  // ID validation
+  if(!id||id<=0){
+    alert('Valid ID required');
+    return;
+  }
+
+  // API URL banana
   let url=`/api/${type}?id=${id}`;
+
+  // Insert case me name aur email required
   if(type==='insert'){
-    if(!name||!email){ alert('Name and Email required'); return; }
+    if(!name||!email){
+      alert('Name and Email required');
+      return;
+    }
+
     url+=`&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
   }
+
+  // Loader start
   setLoad('lb1',true);
+
+  // Performance timing start
   const t0=performance.now();
+
   try{
+
     const res=await fetch(url);
     const data=await res.text();
+
+    // Execution time calculate
     const ms=(performance.now()-t0).toFixed(1);
+
+    // Success / Error detection
     const ok=data.includes('Executed')||data.includes(',');
     const err=data.includes('Error')||data.includes('Bridge');
+
+    // Output area update
     document.getElementById('outBody').innerHTML=
-      `<div class="log"><span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span> <span class="log-time"> · ${ms}ms · ${type.toUpperCase()}</span></div>`;
+      `<div class="log">
+      <span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span>
+      <span class="log-time"> · ${ms}ms · ${type.toUpperCase()}</span>
+      </div>`;
+
+    // Current operation stat
     document.getElementById('statOp').textContent=type.toUpperCase();
+
+    // Insert/Delete ke baad input clear
     if((type==='insert'||type==='delete')&&ok){
+
       document.getElementById('opId').value='';
       document.getElementById('opName').value='';
       document.getElementById('opEmail').value='';
+
+      // Table refresh
       setTimeout(()=>fetchAll(true),600);
     }
+
   }catch(e){
-    document.getElementById('outBody').innerHTML=`<div class="log"><span class="log-err">Network Error: ${e.message}</span></div>`;
+
+    // Network error
+    document.getElementById('outBody').innerHTML=
+    `<div class="log">
+    <span class="log-err">Network Error: ${e.message}</span>
+    </div>`;
   }
+
+  // Loader stop
   setLoad('lb1',false);
 }
 
+
+/* -------------------------------------------------
+   fetchAll()
+   Saare records database se fetch karta hai
+------------------------------------------------- */
 async function fetchAll(silent=false){
-  if(!silent) setLoad('lb1',true);
+
+  if(!silent)
+    setLoad('lb1',true);
+
   try{
+
     const res=await fetch('/api/all');
     const data=await res.text();
-    if(!silent) document.getElementById('outBody').innerHTML=renderTable(data);
+
+    // Table render
+    if(!silent)
+      document.getElementById('outBody').innerHTML=renderTable(data);
+
+    // Total records update
     document.getElementById('statTotal').textContent=countRows(data);
+
   }catch(e){
-    if(!silent) document.getElementById('outBody').innerHTML=`<div class="log"><span class="log-err">Error: ${e.message}</span></div>`;
+
+    if(!silent)
+      document.getElementById('outBody').innerHTML=
+      `<div class="log">
+      <span class="log-err">Error: ${e.message}</span>
+      </div>`;
   }
-  if(!silent) setLoad('lb1',false);
+
+  if(!silent)
+    setLoad('lb1',false);
 }
 
+
+/* -------------------------------------------------
+   fetchAllExplorer()
+   Explorer page ke liye table fetch karta hai
+------------------------------------------------- */
 async function fetchAllExplorer(){
+
   setLoad('lb2',true);
+
   try{
+
     const res=await fetch('/api/all');
     const data=await res.text();
+
     document.getElementById('explorerBody').innerHTML=renderTable(data);
     document.getElementById('statTotal').textContent=countRows(data);
+
   }catch(e){
-    document.getElementById('explorerBody').innerHTML=`<div class="log"><span class="log-err">Error: ${e.message}</span></div>`;
+
+    document.getElementById('explorerBody').innerHTML=
+    `<div class="log">
+    <span class="log-err">Error: ${e.message}</span>
+    </div>`;
   }
+
   setLoad('lb2',false);
 }
 
+
+/* -------------------------------------------------
+   runRaw()
+   Raw console command run karta hai
+------------------------------------------------- */
 async function runRaw(){
+
+  // Console command read
   const cmd=document.getElementById('rawCmd').value.trim();
-  if(!cmd) return;
+
+  if(!cmd)
+    return;
+
+  // Command parts split
   const parts=cmd.split(',');
   const type=parts[0].toLowerCase();
+
   setLoad('lb3',true);
+
   const t0=performance.now();
+
   let url='';
-  if(type==='all'||type==='select') url='/api/all';
-  else if(type==='search'&&parts[1]) url=`/api/search?id=${parts[1].trim()}`;
-  else if(type==='insert'&&parts.length>=4) url=`/api/insert?id=${parts[1].trim()}&name=${encodeURIComponent(parts[2].trim())}&email=${encodeURIComponent(parts[3].trim())}`;
-  else if(type==='delete'&&parts[1]) url=`/api/delete?id=${parts[1].trim()}`;
+
+  // Command parsing
+  if(type==='all'||type==='select')
+    url='/api/all';
+
+  else if(type==='search'&&parts[1])
+    url=`/api/search?id=${parts[1].trim()}`;
+
+  else if(type==='insert'&&parts.length>=4)
+    url=`/api/insert?id=${parts[1].trim()}&name=${encodeURIComponent(parts[2].trim())}&email=${encodeURIComponent(parts[3].trim())}`;
+
+  else if(type==='delete'&&parts[1])
+    url=`/api/delete?id=${parts[1].trim()}`;
+
   else{
-    document.getElementById('consoleBody').innerHTML=`<div class="log"><span class="log-err">Unknown command</span>\n<span class="log-time">insert,id,name,email | search,id | delete,id | all</span></div>`;
-    setLoad('lb3',false); return;
+
+    document.getElementById('consoleBody').innerHTML=
+    `<div class="log">
+    <span class="log-err">Unknown command</span>
+    <span class="log-time">insert,id,name,email | search,id | delete,id | all</span>
+    </div>`;
+
+    setLoad('lb3',false);
+    return;
   }
+
   try{
+
     const res=await fetch(url);
     const data=await res.text();
+
     const ms=(performance.now()-t0).toFixed(1);
+
     const ok=data.includes('Executed')||data.includes(',');
     const err=data.includes('Error')||data.includes('Bridge');
-    const html=data.includes(',')&&type!=='delete'?renderTable(data):
-      `<div class="log"><span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span> <span class="log-time"> · ${ms}ms</span></div>`;
+
+    const html=data.includes(',')&&type!=='delete'
+      ? renderTable(data)
+      : `<div class="log">
+         <span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span>
+         <span class="log-time"> · ${ms}ms</span>
+         </div>`;
+
     document.getElementById('consoleBody').innerHTML=html;
+
+    // Command clear
     document.getElementById('rawCmd').value='';
+
   }catch(e){
-    document.getElementById('consoleBody').innerHTML=`<div class="log"><span class="log-err">Error: ${e.message}</span></div>`;
+
+    document.getElementById('consoleBody').innerHTML=
+    `<div class="log">
+    <span class="log-err">Error: ${e.message}</span>
+    </div>`;
   }
+
   setLoad('lb3',false);
 }
 
-window.onload=()=>{ const s=getSession(); if(s){currentUser=s;loadApp();} else showPage('loginPage'); };
-</script>
-</body>
-</html>
+
+/* -------------------------------------------------
+   Page Load
+   Session check karke app ya login load karta hai
+------------------------------------------------- */
+window.onload=()=>{
+  const s=getSession();
+
+  if(s){
+    currentUser=s;
+    loadApp();
+  }
+  else
+    showPage('loginPage');
+};
