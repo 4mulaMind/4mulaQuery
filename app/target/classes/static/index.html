@@ -2099,155 +2099,191 @@ Theme: Navy + Gold Luxury Tech Theme
       </div>
 
 <script>
-/* ================================================
-   HERO TYPING ANIMATION
-   Dashboard hero section ke liye dynamic typing effect
-================================================ */
+/* =========================================================
+   HERO TYPING ANIMATION MODULE
+   ---------------------------------------------------------
+   This module creates a dynamic typing effect for the hero
+   section of the dashboard. It cycles through predefined
+   phrases and simulates typing and deleting characters.
+   Used to visually highlight key features of the system.
+========================================================= */
 
-// Hero section me rotate hone wale phrases
+
+/* ---------------------------------------------------------
+   Phrases to display in the hero typing animation
+   Each phrase will appear one by one in a loop
+--------------------------------------------------------- */
 const phrases = [
   "Fastest C++ B-Tree Engine",
   "Spring Boot + Docker Integrated",
   "Intelligent Query Processing",
 ];
 
-// Animation state variables
-let pIndex = 0;      // current phrase index
-let cIndex = 0;      // current character index
-let deleting = false; // typing mode ya deleting mode
-let typingTimer = null; // setTimeout reference
+
+/* ---------------------------------------------------------
+   Animation State Variables
+--------------------------------------------------------- */
+
+let pIndex = 0;       // Index of the current phrase
+let cIndex = 0;       // Index of the current character
+let deleting = false; // Indicates whether characters are being deleted
+let typingTimer = null; // Reference to the active timeout
 
 
-/* ================================================
-   START TYPING ANIMATION
-   Typing animation ko initialize karta hai
-================================================ */
-
+/* =========================================================
+   startTyping()
+   ---------------------------------------------------------
+   Initializes and starts the typing animation.
+   - Clears any previous timer
+   - Resets animation state
+   - Starts the typing cycle
+========================================================= */
 function startTyping(){
 
-  // Agar animation already chal raha ho to stop karo
-  if(typingTimer) clearTimeout(typingTimer);
+  // Stop any existing animation timer
+  if(typingTimer)
+    clearTimeout(typingTimer);
 
-  // Animation state reset
+  // Reset animation state
   pIndex = 0;
   cIndex = 0;
   deleting = false;
 
-  // Typing process start
+  // Start typing engine
   typeNext();
 }
 
 
-/* ================================================
-   MAIN TYPING ENGINE
-   Character by character typing & deleting
-================================================ */
-
+/* =========================================================
+   typeNext()
+   ---------------------------------------------------------
+   Core typing engine responsible for:
+   - Typing characters one by one
+   - Deleting characters after completion
+   - Switching between phrases in a loop
+========================================================= */
 function typeNext(){
 
-  // Dynamic text element select
+  // Get the dynamic text element
   const el = document.getElementById("dynamic-text");
 
-  // Agar element exist nahi karta to function stop
+  // Stop execution if element does not exist
   if(!el) return;
 
-  // Current phrase select
+  // Current phrase being processed
   const text = phrases[pIndex];
 
-  // Typing ya deleting ke according text update
+
+  /* -----------------------------------------------------
+     Update displayed text
+     - If deleting → remove characters
+     - If typing → add characters
+  ----------------------------------------------------- */
   el.textContent = deleting
-    ? text.substring(0, cIndex--)  // deleting mode
-    : text.substring(0, cIndex++); // typing mode
+    ? text.substring(0, cIndex--)
+    : text.substring(0, cIndex++);
 
 
-  /* -------------------------------
-     CASE 1 : Phrase fully typed
-  -------------------------------- */
-
+  /* -----------------------------------------------------
+     CASE 1 : Phrase completely typed
+     Pause before starting deletion
+  ----------------------------------------------------- */
   if(!deleting && cIndex > text.length){
 
-    deleting = true; // ab delete start hoga
+    deleting = true;
 
-    // Delete start hone se pehle pause
+    // Wait before deleting
     typingTimer = setTimeout(typeNext, 2000);
   }
 
 
-  /* -------------------------------
+  /* -----------------------------------------------------
      CASE 2 : Phrase completely deleted
-  -------------------------------- */
-
+     Move to next phrase
+  ----------------------------------------------------- */
   else if(deleting && cIndex === 0){
 
     deleting = false;
 
-    // Next phrase par move
+    // Move to next phrase (loop)
     pIndex = (pIndex + 1) % phrases.length;
 
+    // Short delay before typing next phrase
     typingTimer = setTimeout(typeNext, 500);
   }
 
 
-  /* -------------------------------
-     CASE 3 : Continue typing / deleting
-  -------------------------------- */
-
+  /* -----------------------------------------------------
+     CASE 3 : Continue typing / deleting animation
+  ----------------------------------------------------- */
   else{
 
     typingTimer = setTimeout(
       typeNext,
-      deleting ? 50 : 100 // deleting fast, typing slow
+      deleting ? 50 : 100
     );
   }
 }
 
 /* =================================================
-   AUTH
-================================================= */
-/* =================================================
-   GLOBAL STATE VARIABLES
-   User session aur OTP related data store karte hain
+   AUTH MODULE
+   User Authentication aur Session Management
 ================================================= */
 
-let currentUser = null;   // currently logged-in user
-let generatedOtp = null;  // generated OTP for password reset
-let otpEmail = null;      // email jiske liye OTP generate hua
+// Current logged-in user
+let currentUser = null;
+
+// Generated OTP for password reset
+let generatedOtp = null;
+
+// Email jiske liye OTP generate hua hai
+let otpEmail = null;
 
 
-/* =================================================
-   LOCAL STORAGE HELPERS
-   Users aur session data ko localStorage me store
-================================================= */
-
-// All registered users get karo
+/* -------------------------------------------------
+   getUsers()
+   LocalStorage se registered users ko read karta hai
+------------------------------------------------- */
 function getUsers() {
   return JSON.parse(localStorage.getItem('fq_users') || '{}');
 }
 
-// Users ko localStorage me save karo
+
+/* -------------------------------------------------
+   saveUsers()
+   Users data ko LocalStorage me store karta hai
+------------------------------------------------- */
 function saveUsers(u) {
   localStorage.setItem('fq_users', JSON.stringify(u));
 }
 
-// Active session get karo
+
+/* -------------------------------------------------
+   getSession()
+   Current login session ko LocalStorage se read karta hai
+------------------------------------------------- */
 function getSession() {
   return JSON.parse(localStorage.getItem('fq_session') || 'null');
 }
 
-// Current session save karo
+
+/* -------------------------------------------------
+   saveSession()
+   Logged-in user ka session LocalStorage me save karta hai
+------------------------------------------------- */
 function saveSession(u) {
   localStorage.setItem('fq_session', JSON.stringify(u));
 }
 
 
-/* =================================================
-   PAGE NAVIGATION
-   Login / Signup / Forgot Password pages switch
-================================================= */
+/* -------------------------------------------------
+   showPage()
+   Authentication pages (Login / Signup / Forgot Password)
+   ke beech navigation handle karta hai
+------------------------------------------------- */
+function showPage(id) {
 
-function showPage(id){
-
-  // Sab pages hide karo
+  // Sabhi auth pages ko hide kar do
   ['loginPage','signupPage','forgotPage'].forEach(p=>{
     document.getElementById(p).style.display='none';
   });
@@ -2255,348 +2291,397 @@ function showPage(id){
   // Selected page show karo
   document.getElementById(id).style.display='flex';
 
-  // Forgot password flow reset
-  if(id==='forgotPage'){
+  // Agar Forgot Password page hai to steps reset karo
+  if(id === 'forgotPage'){
+
+    // Step 1 : Email enter
     document.getElementById('fStep1').style.display='block';
+
+    // Step 2 : OTP verification
     document.getElementById('fStep2').style.display='none';
+
+    // Step 3 : New password set
     document.getElementById('fStep3').style.display='none';
   }
 }
 
-
-/* =================================================
-   TOAST NOTIFICATION
-   Error / Success messages display
-================================================= */
+/* -------------------------------------------------
+   showToast()
+   User ko notification / message show karne ke liye
+   toast popup display karta hai
+------------------------------------------------- */
 
 function showToast(id,msg,type='error'){
 
+  // Toast element select karo
   const el = document.getElementById(id);
 
   // Message set karo
   el.textContent = msg;
 
-  // Toast style apply
+  // Toast class update karo (error / success / info)
   el.className = `toast ${type} show`;
 
-  // Auto hide after 3.5 sec
+  // 3.5 seconds baad toast automatically hide ho jayega
   setTimeout(()=>{
     el.className = `toast ${type}`;
   },3500);
 }
 
-
-/* =================================================
-   LOGIN FUNCTION
-   User authentication aur session start
-================================================= */
-
+/* -------------------------------------------------
+   doLogin()
+   User login process handle karta hai
+------------------------------------------------- */
 function doLogin(){
 
+  // Login form se email aur password read karo
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
 
-  // Validation
+  // Validation : agar koi field empty hai
   if(!email || !pass)
     return showToast('loginToast','Please fill all fields');
 
+  // LocalStorage se registered users load karo
   const users = getUsers();
 
-  // Account exist check
+  // Agar email exist nahi karta
   if(!users[email])
     return showToast('loginToast','Account not found. Sign up first.');
 
-  // Password verify
+  // Password match check (password Base64 encoded store hai)
   if(users[email].password !== btoa(pass))
     return showToast('loginToast','Incorrect password.');
 
-  // Login success
+  // Login successful
   currentUser = users[email];
 
-  // Session save
+  // Session save karo
   saveSession(currentUser);
 
-  // App load
+  // Main app load karo
   loadApp();
 }
 
-
-/* =================================================
-   SIGNUP FUNCTION
-   New user registration
-================================================= */
-
+/* -------------------------------------------------
+   doSignup()
+   Naya user account create karne ka function
+------------------------------------------------- */
 function doSignup(){
 
+  // Signup form se user inputs read karo
   const name  = document.getElementById('signupName').value.trim();
   const email = document.getElementById('signupEmail').value.trim();
   const pass  = document.getElementById('signupPass').value;
   const pass2 = document.getElementById('signupPass2').value;
 
-  // Basic validation
+  // Validation : agar koi field empty ho
   if(!name || !email || !pass)
     return showToast('signupToast','Please fill all fields');
 
-  // Password match
+  // Validation : password confirm match check
   if(pass !== pass2)
     return showToast('signupToast','Passwords do not match');
 
-  // Password length check
+  // Validation : minimum password length
   if(pass.length < 6)
     return showToast('signupToast','Min 6 characters required');
 
+  // LocalStorage se existing users load karo
   const users = getUsers();
 
-  // Email already exist
+  // Agar email already register hai
   if(users[email])
     return showToast('signupToast','Email already registered.');
 
-  // New user create
+  // New user object create karo
   users[email] = {
     name,
     email,
-    password: btoa(pass)
+    password: btoa(pass) // password Base64 encode karke store
   };
 
+  // Users ko LocalStorage me save karo
   saveUsers(users);
 
+  // Current user set karo
   currentUser = users[email];
 
-  // Session save
+  // Session save karo (auto login)
   saveSession(currentUser);
 
-  // Success message
+  // Success message show karo
   showToast('signupToast','Account created! Loading...','success');
 
-  // App load
+  // Thodi delay ke baad main app load karo
   setTimeout(loadApp,800);
 }
 
-
-/* =================================================
-   SEND OTP
-   Forgot password ke liye OTP generate
-================================================= */
-
+/* -------------------------------------------------
+   sendOtp()
+   Forgot password process ke liye OTP generate karta hai
+------------------------------------------------- */
 function sendOtp(){
 
+  // Email input field se value read karo
   const email = document.getElementById('forgotEmail').value.trim();
 
+  // Validation : agar email empty ho
   if(!email)
     return showToast('forgotToast','Enter your email');
 
+  // LocalStorage se registered users load karo
   const users = getUsers();
 
+  // Check karo ki email registered hai ya nahi
   if(!users[email])
     return showToast('forgotToast','No account with this email.');
 
-  // Email store karo
+  // OTP kis email ke liye generate hua hai
   otpEmail = email;
 
-  // Random 4 digit OTP generate
+  // 4-digit random OTP generate karo
   generatedOtp = Math.floor(1000 + Math.random()*9000).toString();
 
-  // Demo ke liye screen par show
+  // User ko OTP show karo (demo purpose)
   showToast('forgotToast',`Your OTP: ${generatedOtp}`,'success');
 
-  // Next step open
+  // Thodi delay ke baad next step (OTP verification) show karo
   setTimeout(()=>{
     document.getElementById('fStep1').style.display='none';
     document.getElementById('fStep2').style.display='block';
   },1200);
 }
 
-
-/* =================================================
-   OTP INPUT AUTO FOCUS
-   Next OTP box automatically focus
-================================================= */
-
+/* -------------------------------------------------
+   otpNext()
+   OTP input fields me automatic focus next box me
+   move karne ke liye use hota hai
+------------------------------------------------- */
 function otpNext(el,idx){
 
-  if(el.value && idx<3)
+  // Agar current input me value hai aur last box nahi hai
+  if(el.value && idx < 3)
+
+    // Next OTP input box par focus shift karo
     document.querySelectorAll('.otp-input')[idx+1].focus();
 }
 
 
-/* =================================================
-   OTP VERIFICATION
-================================================= */
-
+/* -------------------------------------------------
+   verifyOtp()
+   Entered OTP ko verify karta hai
+------------------------------------------------- */
 function verifyOtp(){
 
-  // Entered OTP collect
+  // Sab OTP input boxes se values read karke combine karo
   const entered = [...document.querySelectorAll('.otp-input')]
-    .map(i=>i.value)
+    .map(i => i.value)
     .join('');
 
-  // Verify
+  // Check karo OTP correct hai ya nahi
   if(entered !== generatedOtp)
     return showToast('forgotToast','Invalid OTP. Try again.');
 
-  // Move to reset password step
+  // OTP correct hone par Step 2 hide karo
   document.getElementById('fStep2').style.display='none';
+
+  // Password reset step show karo
   document.getElementById('fStep3').style.display='block';
 }
 
-
-/* =================================================
-   RESET PASSWORD
-================================================= */
-
+/* -------------------------------------------------
+   resetPass()
+   Forgot password process ke last step me
+   new password set karta hai
+------------------------------------------------- */
 function resetPass(){
 
+  // New password aur confirm password read karo
   const p1 = document.getElementById('newPass').value;
   const p2 = document.getElementById('newPass2').value;
 
-  if(!p1 || p1!==p2)
+  // Validation : agar password empty ho ya match na kare
+  if(!p1 || p1 !== p2)
     return showToast('forgotToast','Passwords do not match');
 
-  if(p1.length<6)
+  // Validation : minimum password length
+  if(p1.length < 6)
     return showToast('forgotToast','Min 6 characters');
 
+  // LocalStorage se users load karo
   const users = getUsers();
 
+  // OTP email ke user ka password update karo
   users[otpEmail].password = btoa(p1);
 
+  // Updated users data save karo
   saveUsers(users);
 
+  // Success message show karo
   showToast('forgotToast','Password updated! Redirecting...','success');
 
-  setTimeout(()=>showPage('loginPage'),1500);
+  // 1.5 second baad login page par redirect
+  setTimeout(()=>{
+    showPage('loginPage');
+  },1500);
 }
 
-
-/* =================================================
-   LOGOUT FUNCTION
-================================================= */
-
+/* -------------------------------------------------
+   doLogout()
+   Current user ko logout karta hai aur session clear karta hai
+------------------------------------------------- */
 function doLogout(){
 
-  // Session remove
+  // LocalStorage se current session remove karo
   localStorage.removeItem('fq_session');
 
+  // Current user variable reset karo
   currentUser = null;
 
-  // App hide
-  document.getElementById('app').style.display='none';
+  // Main app UI hide karo
+  document.getElementById('app').style.display = 'none';
 
-  // Stop typing animation
-  if(typingTimer) clearTimeout(typingTimer);
+  // Agar typing animation chal rahi ho to stop karo
+  if(typingTimer)
+    clearTimeout(typingTimer);
 
-  // Login page show
+  // User ko login page par redirect karo
   showPage('loginPage');
 }
 
-
-/* =================================================
-   LOAD MAIN APPLICATION
-================================================= */
-
+/* -------------------------------------------------
+   loadApp()
+   Successful login ke baad main application load karta hai
+------------------------------------------------- */
 function loadApp(){
 
+  // Current session ya logged-in user check karo
   const s = currentUser || getSession();
 
+  // Agar session nahi hai to function stop
   if(!s) return;
 
+  // Current user set karo
   currentUser = s;
 
-  // Auth pages hide
+  // Sab authentication pages hide karo
   ['loginPage','signupPage','forgotPage'].forEach(p=>{
     document.getElementById(p).style.display='none';
   });
 
-  // Main app show
+  // Main application UI show karo
   document.getElementById('app').style.display='block';
 
-  // User info update
+  // Navbar / profile me user name show karo
   document.getElementById('userNm').textContent = currentUser.name;
-  document.getElementById('userAv').textContent = currentUser.name[0].toUpperCase();
 
-  // Settings values fill
-  document.getElementById('setName').value = currentUser.name;
+  // User avatar me first letter show karo
+  document.getElementById('userAv').textContent =
+    currentUser.name[0].toUpperCase();
+
+  // Settings page me user name aur email prefill karo
+  document.getElementById('setName').value  = currentUser.name;
   document.getElementById('setEmail').value = currentUser.email;
 
-  // Start hero typing animation
+  // Hero typing animation start karo
   startTyping();
 
-  // Load database data
+  // Background me database records fetch karo
   fetchAll(true);
 }
-
-
-/* =================================================
-   SAVE SETTINGS
-   Update name / password
-================================================= */
-
+/* -------------------------------------------------
+   saveSettings()
+   User profile settings update karta hai
+   (Name aur optionally password change)
+------------------------------------------------- */
 function saveSettings(){
 
+  // Settings form se name aur password fields read karo
   const name  = document.getElementById('setName').value.trim();
   const pass  = document.getElementById('setPass').value;
   const pass2 = document.getElementById('setPass2').value;
 
+  // Validation : name empty nahi hona chahiye
   if(!name)
     return showToast('setToast','Name cannot be empty');
 
-  if(pass && pass!==pass2)
+  // Validation : agar password change kar rahe ho to match hona chahiye
+  if(pass && pass !== pass2)
     return showToast('setToast','Passwords do not match');
 
-  if(pass && pass.length<6)
+  // Validation : password minimum length
+  if(pass && pass.length < 6)
     return showToast('setToast','Min 6 characters');
 
+  // LocalStorage se users data load karo
   const users = getUsers();
 
+  // Current user ka name update karo
   users[currentUser.email].name = name;
 
+  // Agar password field filled hai to password update karo
   if(pass)
     users[currentUser.email].password = btoa(pass);
 
+  // Updated users data save karo
   saveUsers(users);
 
+  // Current user object update karo
   currentUser = users[currentUser.email];
 
+  // Session update karo
   saveSession(currentUser);
 
-  // UI update
+  // Navbar me updated name show karo
   document.getElementById('userNm').textContent = currentUser.name;
-  document.getElementById('userAv').textContent = currentUser.name[0].toUpperCase();
 
+  // Avatar me first letter update karo
+  document.getElementById('userAv').textContent =
+    currentUser.name[0].toUpperCase();
+
+  // Success message show karo
   showToast('setToast','Saved successfully!','success');
 }
 
-
-/* =================================================
-   SECTION SWITCHING
-   Dashboard sections change karne ke liye
-================================================= */
-
+/* -------------------------------------------------
+   switchSec()
+   App ke different sections (Dashboard, Explorer, etc.)
+   ke beech navigation handle karta hai
+------------------------------------------------- */
 function switchSec(name,el){
 
+  // Sabhi sections se "active" class remove karo
   document.querySelectorAll('.section')
-    .forEach(s=>s.classList.remove('active'));
+    .forEach(s => s.classList.remove('active'));
 
+  // Top navigation buttons se bhi "active" class remove karo
   document.querySelectorAll('.tnav')
-    .forEach(n=>n.classList.remove('active'));
+    .forEach(n => n.classList.remove('active'));
 
-  document.getElementById('sec-'+name).classList.add('active');
+  // Selected section ko active banao
+  document.getElementById('sec-'+name)
+    .classList.add('active');
 
+  // Clicked navigation button ko active highlight karo
   el.classList.add('active');
 }
 
 /* =================================================
-   API
+   API MODULE
+   Backend API responses ko handle karne wale functions
 ================================================= */
-/* =================================================
-   API FUNCTIONS
-   Backend se data fetch / send karne ke functions
-================================================= */
+
 
 /* -------------------------------------------------
    setLoad()
-   Loader ko ON / OFF karne ke liye
+   Loader indicator ko ON / OFF karta hai
 ------------------------------------------------- */
 function setLoad(id,on){
+
+  // Given element par "on" class toggle karo
+  // true → loader show
+  // false → loader hide
   document.getElementById(id).classList.toggle('on',on);
 }
 
@@ -2607,19 +2692,19 @@ function setLoad(id,on){
 ------------------------------------------------- */
 function renderTable(data){
 
-  // Agar data empty ho ya "empty" message aaye
-  if(!data||!data.trim()||data.includes('empty')||data.includes('Empty'))
+  // Agar data empty ho ya "empty" message ho
+  if(!data || !data.trim() || data.includes('empty') || data.includes('Empty'))
     return `<div class="empty"><div class="empty-icon">◈</div>No records found.</div>`;
 
-  // Har row ko split karna
-  const rows=data.trim().split('\n').filter(r=>r.includes(','));
+  // Data ko rows me split karo
+  const rows = data.trim().split('\n').filter(r => r.includes(','));
 
-  // Agar rows nahi milti
+  // Agar valid rows nahi milti
   if(!rows.length)
     return `<div class="empty"><div class="empty-icon">◈</div>${data}</div>`;
 
   // Table HTML start
-  let html=`<table class="db-table">
+  let html = `<table class="db-table">
   <thead>
   <tr>
   <th>#</th>
@@ -2630,12 +2715,16 @@ function renderTable(data){
   </thead>
   <tbody>`;
 
-  // Har row ko table row me convert karna
+  // Har row ko table row me convert karo
   rows.forEach((row,i)=>{
-    const p=row.split(',');
 
-    if(p.length>=3)
-      html+=`<tr>
+    // Row ko comma se split karo
+    const p = row.split(',');
+
+    // Agar required fields exist karti hain
+    if(p.length >= 3)
+
+      html += `<tr>
       <td>${i+1}</td>
       <td>${p[0].trim()}</td>
       <td>${p[1].trim()}</td>
@@ -2643,211 +2732,249 @@ function renderTable(data){
       </tr>`;
   });
 
-  return html+'</tbody></table>';
+  // Table close karo
+  return html + '</tbody></table>';
 }
-
 
 /* -------------------------------------------------
    countRows()
-   Total rows count karta hai
+   API response data me total records (rows) count karta hai
 ------------------------------------------------- */
 function countRows(data){
 
-  if(!data||!data.trim()||data.includes('empty'))
+  // Agar data empty ho ya "empty" message ho
+  if(!data || !data.trim() || data.includes('empty'))
     return 0;
 
-  return data.trim().split('\n').filter(r=>r.includes(',')).length;
+  // Data ko rows me split karke valid rows count karo
+  return data
+    .trim()
+    .split('\n')
+    .filter(r => r.includes(',')) // valid CSV rows
+    .length;
 }
-
-
 /* -------------------------------------------------
    operate()
-   Insert / Delete / Search operations handle karta hai
+   Database operations handle karta hai
+   (insert / delete / search etc.)
 ------------------------------------------------- */
+/* -------------------------------------------------
+   operate()
+   Database operations (insert / delete / search)
+   ke liye API request prepare karta hai
+------------------------------------------------- */
+/* =================================================
+   Database Operation Function
+   insert / delete / search API ko call karta hai
+================================================= */
+
 async function operate(type){
 
-  // Input values lena
-  const id=document.getElementById('opId').value;
-  const name=document.getElementById('opName').value;
-  const email=document.getElementById('opEmail').value;
+  // Form inputs se values read karna
+  const id = document.getElementById('opId').value;
+  const name = document.getElementById('opName').value;
+  const email = document.getElementById('opEmail').value;
 
-  // ID validation
-  if(!id||id<=0){
+  // ID validation (ID empty ya invalid nahi hona chahiye)
+  if(!id || id <= 0){
     alert('Valid ID required');
     return;
   }
 
-  // API URL banana
-  let url=`/api/${type}?id=${id}`;
+  // API endpoint create karna
+  let url = `/api/${type}?id=${id}`;
 
-  // Insert case me name aur email required
-  if(type==='insert'){
-    if(!name||!email){
+  // Agar operation insert hai to name aur email required hain
+  if(type === 'insert'){
+    if(!name || !email){
       alert('Name and Email required');
       return;
     }
 
-    url+=`&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+    // URL me encoded parameters add karna
+    url += `&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
   }
 
-  // Loader start
-  setLoad('lb1',true);
+  // Loading animation start karna
+  setLoad('lb1', true);
 
-  // Performance timing start
-  const t0=performance.now();
+  // Response time measure karne ke liye start time
+  const t0 = performance.now();
 
   try{
 
-    const res=await fetch(url);
-    const data=await res.text();
+    // API request send karna
+    const res = await fetch(url);
 
-    // Execution time calculate
-    const ms=(performance.now()-t0).toFixed(1);
+    // Response text me convert karna
+    const data = await res.text();
 
-    // Success / Error detection
-    const ok=data.includes('Executed')||data.includes(',');
-    const err=data.includes('Error')||data.includes('Bridge');
+    // Execution time calculate karna
+    const ms = (performance.now() - t0).toFixed(1);
 
-    // Output area update
-    document.getElementById('outBody').innerHTML=
+    // Check karna operation successful hai ya nahi
+    const ok = data.includes('Executed') || data.includes(',');
+    const err = data.includes('Error') || data.includes('Bridge');
+
+    // Result UI me show karna
+    document.getElementById('outBody').innerHTML =
       `<div class="log">
-      <span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span>
-      <span class="log-time"> · ${ms}ms · ${type.toUpperCase()}</span>
+        <span class="${err ? 'log-err' : ok ? 'log-ok' : 'log-info'}">
+        ${data.trim()}
+        </span>
+        <span class="log-time"> · ${ms}ms · ${type.toUpperCase()}</span>
       </div>`;
 
-    // Current operation stat
-    document.getElementById('statOp').textContent=type.toUpperCase();
+    // Current operation statistics update karna
+    document.getElementById('statOp').textContent = type.toUpperCase();
 
-    // Insert/Delete ke baad input clear
-    if((type==='insert'||type==='delete')&&ok){
+    // Agar insert ya delete successful hua to input fields reset karna
+    if((type === 'insert' || type === 'delete') && ok){
 
-      document.getElementById('opId').value='';
-      document.getElementById('opName').value='';
-      document.getElementById('opEmail').value='';
+      document.getElementById('opId').value = '';
+      document.getElementById('opName').value = '';
+      document.getElementById('opEmail').value = '';
 
-      // Table refresh
-      setTimeout(()=>fetchAll(true),600);
+      // Data refresh karne ke liye fetchAll call
+      setTimeout(() => fetchAll(true), 600);
     }
 
   }catch(e){
 
-    // Network error
-    document.getElementById('outBody').innerHTML=
-    `<div class="log">
-    <span class="log-err">Network Error: ${e.message}</span>
-    </div>`;
-  }
-
-  // Loader stop
-  setLoad('lb1',false);
-}
-
-
-/* -------------------------------------------------
-   fetchAll()
-   Saare records database se fetch karta hai
-------------------------------------------------- */
-async function fetchAll(silent=false){
-
-  if(!silent)
-    setLoad('lb1',true);
-
-  try{
-
-    const res=await fetch('/api/all');
-    const data=await res.text();
-
-    // Table render
-    if(!silent)
-      document.getElementById('outBody').innerHTML=renderTable(data);
-
-    // Total records update
-    document.getElementById('statTotal').textContent=countRows(data);
-
-  }catch(e){
-
-    if(!silent)
-      document.getElementById('outBody').innerHTML=
+    // Network error handle karna
+    document.getElementById('outBody').innerHTML =
       `<div class="log">
-      <span class="log-err">Error: ${e.message}</span>
+        <span class="log-err">Network Error: ${e.message}</span>
       </div>`;
   }
 
-  if(!silent)
-    setLoad('lb1',false);
+  // Loading animation band karna
+  setLoad('lb1', false);
+}
+/* =================================================
+   fetchAll()
+   Database se saare records fetch karta hai
+   aur table me display karta hai
+================================================= */
+
+async function fetchAll(silent=false){
+
+  // Agar silent mode nahi hai to loading indicator show karo
+  if(!silent) setLoad('lb1',true);
+
+  try{
+
+    // Backend API ko request bhejna (saare records ke liye)
+    const res = await fetch('/api/all');
+
+    // Response ko text format me convert karna
+    const data = await res.text();
+
+    // Agar silent mode nahi hai to table render karo
+    if(!silent)
+      document.getElementById('outBody').innerHTML = renderTable(data);
+
+    // Total records count update karna (statistics panel)
+    document.getElementById('statTotal').textContent = countRows(data);
+
+  }catch(e){
+
+    // Error aane par UI me error message show karna
+    if(!silent)
+      document.getElementById('outBody').innerHTML =
+        `<div class="log"><span class="log-err">Error: ${e.message}</span></div>`;
+  }
+
+  // Loading indicator hide karna
+  if(!silent) setLoad('lb1',false);
 }
 
-
-/* -------------------------------------------------
+/* =================================================
    fetchAllExplorer()
-   Explorer page ke liye table fetch karta hai
-------------------------------------------------- */
+   Database Explorer section ke liye
+   saare records fetch karke table me show karta hai
+================================================= */
+
 async function fetchAllExplorer(){
 
+  // Explorer section ke loader ko ON karna
   setLoad('lb2',true);
 
   try{
 
-    const res=await fetch('/api/all');
-    const data=await res.text();
+    // Backend API se saare records fetch karna
+    const res = await fetch('/api/all');
 
-    document.getElementById('explorerBody').innerHTML=renderTable(data);
-    document.getElementById('statTotal').textContent=countRows(data);
+    // Response ko text format me convert karna
+    const data = await res.text();
+
+    // Explorer table me data render karna
+    document.getElementById('explorerBody').innerHTML = renderTable(data);
+
+    // Total rows ka count statistics me update karna
+    document.getElementById('statTotal').textContent = countRows(data);
 
   }catch(e){
 
-    document.getElementById('explorerBody').innerHTML=
-    `<div class="log">
-    <span class="log-err">Error: ${e.message}</span>
-    </div>`;
+    // Agar error aaye to error message show karna
+    document.getElementById('explorerBody').innerHTML =
+      `<div class="log"><span class="log-err">Error: ${e.message}</span></div>`;
   }
 
+  // Loader OFF karna
   setLoad('lb2',false);
 }
 
-
-/* -------------------------------------------------
+/* =================================================
    runRaw()
-   Raw console command run karta hai
-------------------------------------------------- */
+   Raw command console se database operations run karta hai
+================================================= */
+
 async function runRaw(){
 
-  // Console command read
-  const cmd=document.getElementById('rawCmd').value.trim();
+  // Console input se command read karna
+  const cmd = document.getElementById('rawCmd').value.trim();
 
-  if(!cmd)
-    return;
+  // Agar command empty hai to function stop
+  if(!cmd) return;
 
-  // Command parts split
-  const parts=cmd.split(',');
-  const type=parts[0].toLowerCase();
+  // Command ko comma ke basis par split karna
+  const parts = cmd.split(',');
 
+  // First part command type hota hai (insert, search, delete, all)
+  const type = parts[0].toLowerCase();
+
+  // Console loader ON karna
   setLoad('lb3',true);
 
-  const t0=performance.now();
+  // Execution time measure karne ke liye start time
+  const t0 = performance.now();
 
-  let url='';
+  let url = '';
 
-  // Command parsing
-  if(type==='all'||type==='select')
-    url='/api/all';
+  // ALL / SELECT command -> saare records fetch
+  if(type === 'all' || type === 'select')
+    url = '/api/all';
 
-  else if(type==='search'&&parts[1])
-    url=`/api/search?id=${parts[1].trim()}`;
+  // SEARCH command -> specific ID search
+  else if(type === 'search' && parts[1])
+    url = `/api/search?id=${parts[1].trim()}`;
 
-  else if(type==='insert'&&parts.length>=4)
-    url=`/api/insert?id=${parts[1].trim()}&name=${encodeURIComponent(parts[2].trim())}&email=${encodeURIComponent(parts[3].trim())}`;
+  // INSERT command -> id, name, email required
+  else if(type === 'insert' && parts.length >= 4)
+    url = `/api/insert?id=${parts[1].trim()}&name=${encodeURIComponent(parts[2].trim())}&email=${encodeURIComponent(parts[3].trim())}`;
 
-  else if(type==='delete'&&parts[1])
-    url=`/api/delete?id=${parts[1].trim()}`;
+  // DELETE command -> ID required
+  else if(type === 'delete' && parts[1])
+    url = `/api/delete?id=${parts[1].trim()}`;
 
+  // Agar command invalid hai
   else{
-
-    document.getElementById('consoleBody').innerHTML=
-    `<div class="log">
-    <span class="log-err">Unknown command</span>
-    <span class="log-time">insert,id,name,email | search,id | delete,id | all</span>
-    </div>`;
+    document.getElementById('consoleBody').innerHTML =
+      `<div class="log">
+        <span class="log-err">Unknown command</span>
+        <span class="log-time">insert,id,name,email | search,id | delete,id | all</span>
+      </div>`;
 
     setLoad('lb3',false);
     return;
@@ -2855,49 +2982,70 @@ async function runRaw(){
 
   try{
 
-    const res=await fetch(url);
-    const data=await res.text();
+    // API request send karna
+    const res = await fetch(url);
 
-    const ms=(performance.now()-t0).toFixed(1);
+    // Response ko text me convert karna
+    const data = await res.text();
 
-    const ok=data.includes('Executed')||data.includes(',');
-    const err=data.includes('Error')||data.includes('Bridge');
+    // Execution time calculate karna
+    const ms = (performance.now() - t0).toFixed(1);
 
-    const html=data.includes(',')&&type!=='delete'
+    // Success aur error detect karna
+    const ok = data.includes('Executed') || data.includes(',');
+    const err = data.includes('Error') || data.includes('Bridge');
+
+    // Agar response me table data hai to table render karo
+    const html =
+      data.includes(',') && type !== 'delete'
       ? renderTable(data)
       : `<div class="log">
-         <span class="${err?'log-err':ok?'log-ok':'log-info'}">${data.trim()}</span>
-         <span class="log-time"> · ${ms}ms</span>
+           <span class="${err ? 'log-err' : ok ? 'log-ok' : 'log-info'}">${data.trim()}</span>
+           <span class="log-time"> · ${ms}ms</span>
          </div>`;
 
-    document.getElementById('consoleBody').innerHTML=html;
+    // Console me result show karna
+    document.getElementById('consoleBody').innerHTML = html;
 
-    // Command clear
-    document.getElementById('rawCmd').value='';
+    // Command input clear karna
+    document.getElementById('rawCmd').value = '';
 
   }catch(e){
 
-    document.getElementById('consoleBody').innerHTML=
-    `<div class="log">
-    <span class="log-err">Error: ${e.message}</span>
-    </div>`;
+    // Error handle karna
+    document.getElementById('consoleBody').innerHTML =
+      `<div class="log">
+        <span class="log-err">Error: ${e.message}</span>
+      </div>`;
   }
 
+  // Loader OFF karna
   setLoad('lb3',false);
 }
 
 
-/* -------------------------------------------------
-   Page Load
-   Session check karke app ya login load karta hai
-------------------------------------------------- */
-window.onload=()=>{
-  const s=getSession();
+/* =================================================
+   Page Load Handler
+   Agar session saved hai to app load karega
+   warna login page open karega
+================================================= */
 
+window.onload = () => {
+
+  // Local storage se session read karna
+  const s = getSession();
+
+  // Agar user logged in hai
   if(s){
-    currentUser=s;
+    currentUser = s;
     loadApp();
   }
-  else
+
+  // Agar session nahi hai to login page show karo
+  else{
     showPage('loginPage');
+  }
 };
+</script>
+</body>
+</html>
