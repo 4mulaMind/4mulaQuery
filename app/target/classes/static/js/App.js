@@ -1,19 +1,20 @@
 /**
  * =========================================================
- *    4mulaQuery - app.js
- *    Main App UI & Initialization Module
- *    Handles App Startup, Typing Animation, and Navigation
- *    Author: Abdul Qadir
+ *    APP MODULE
+ *    ---------------------------------------------------------
+ *    Handles frontend UI logic, hero typing animation,
+ *    and initial application startup behavior.
  * =========================================================
  *
  * @format
  */
 
 /* ---------------------------------------------------------
-   Typing Animation Variables
+   Hero Typing Animation Phrases
+   ---------------------------------------------------------
+   Text messages displayed in the animated hero banner
+   on the dashboard header.
 --------------------------------------------------------- */
-let typingTimer = null;
-
 const phrases = [
   "Fastest C++ B-Tree Engine",
   "Spring Boot + Docker Integrated",
@@ -24,15 +25,21 @@ const phrases = [
   "Next Generation Query Analyzer",
   "Smart Database Exploration",
   "Predictive SQL Execution Engine",
-  "Developed by Abdul Qadir"
+  "Developed by Abdul Qadir",
 ];
 
-let pIndex = 0; // Current phrase index
-let cIndex = 0; // Current character index
-let deleting = false; // Typing or deleting state
+/* ---------------------------------------------------------
+   Typing Animation State Variables
+--------------------------------------------------------- */
+let pIndex = 0; // current phrase index
+let cIndex = 0; // current character index
+let deleting = false;
+let typingTimer = null;
 
 /* ---------------------------------------------------------
-   startTyping() — Initialize typing animation
+   Animation Starter
+   ---------------------------------------------------------
+   Resets typing state and begins animation loop.
 --------------------------------------------------------- */
 function startTyping() {
   if (typingTimer) clearTimeout(typingTimer);
@@ -45,7 +52,10 @@ function startTyping() {
 }
 
 /* ---------------------------------------------------------
-   typeNext() — Core typing animation engine
+   Typing Animation Engine
+   ---------------------------------------------------------
+   Simulates typing and deleting text character by
+   character to create a looping typewriter effect.
 --------------------------------------------------------- */
 function typeNext() {
   const el = document.getElementById("dynamic-text");
@@ -54,136 +64,36 @@ function typeNext() {
 
   const text = phrases[pIndex];
 
-  // Update text content (typing / deleting)
   el.textContent = deleting
     ? text.substring(0, cIndex--)
     : text.substring(0, cIndex++);
 
-  // Phrase finished typing
   if (!deleting && cIndex > text.length) {
     deleting = true;
-
     typingTimer = setTimeout(typeNext, 2000);
-  }
-
-  // Phrase completely deleted
-  else if (deleting && cIndex === 0) {
+  } else if (deleting && cIndex === 0) {
     deleting = false;
-
     pIndex = (pIndex + 1) % phrases.length;
-
     typingTimer = setTimeout(typeNext, 500);
-  }
-
-  // Continue animation
-  else {
+  } else {
     typingTimer = setTimeout(typeNext, deleting ? 50 : 100);
   }
 }
 
 /* ---------------------------------------------------------
-   loadApp() — Initialize main application UI
-   Runs after successful login
---------------------------------------------------------- */
-function loadApp() {
-  const s = currentUser || getSession();
-
-  if (!s) return;
-
-  currentUser = s;
-
-  // Hide authentication pages
-  ["loginPage", "signupPage", "forgotPage"].forEach((p) => {
-    document.getElementById(p).style.display = "none";
-  });
-
-  // Show main application
-  document.getElementById("app").style.display = "block";
-
-  // Update user info in navbar
-  document.getElementById("userNm").textContent = currentUser.name;
-  document.getElementById("userAv").textContent =
-    currentUser.name[0].toUpperCase();
-
-  // Fill settings form
-  document.getElementById("setName").value = currentUser.name;
-  document.getElementById("setEmail").value = currentUser.email;
-
-  // Start hero typing animation
-  startTyping();
-
-  // Load database records silently
-  fetchAll(true);
-}
-
-/* ---------------------------------------------------------
-   saveSettings() — Update user profile settings
---------------------------------------------------------- */
-function saveSettings() {
-  const name = document.getElementById("setName").value.trim();
-  const pass = document.getElementById("setPass").value;
-  const pass2 = document.getElementById("setPass2").value;
-
-  if (!name) return showToast("setToast", "Name cannot be empty");
-
-  if (pass && pass !== pass2)
-    return showToast("setToast", "Passwords do not match");
-
-  if (pass && pass.length < 6) return showToast("setToast", "Min 6 characters");
-
-  const users = getUsers();
-
-  // Update user name
-  users[currentUser.email].name = name;
-
-  // Update password if provided
-  if (pass) users[currentUser.email].password = btoa(pass);
-
-  saveUsers(users);
-
-  currentUser = users[currentUser.email];
-
-  saveSession(currentUser);
-
-  // Update navbar info
-  document.getElementById("userNm").textContent = currentUser.name;
-  document.getElementById("userAv").textContent =
-    currentUser.name[0].toUpperCase();
-
-  showToast("setToast", "Saved successfully!", "success");
-}
-
-/* ---------------------------------------------------------
-   switchSec() — Section Navigation System
---------------------------------------------------------- */
-function switchSec(name, el) {
-  // Hide all sections
-  document
-    .querySelectorAll(".section")
-    .forEach((s) => s.classList.remove("active"));
-
-  // Remove active navigation
-  document
-    .querySelectorAll(".tnav")
-    .forEach((n) => n.classList.remove("active"));
-
-  // Activate selected section
-  document.getElementById("sec-" + name).classList.add("active");
-
-  el.classList.add("active");
-}
-
-/* ---------------------------------------------------------
-   window.onload — Application Entry Point
+   Application Bootstrap
+   ---------------------------------------------------------
+   Runs on page load and checks if user session exists.
+   If session found → load dashboard
+   Otherwise → redirect to login page.
 --------------------------------------------------------- */
 window.onload = () => {
-  const s = getSession();
+  const s = getSession(); // from auth.js
 
   if (s) {
-    currentUser = s;
-
-    loadApp();
+    currentUser = s; // global user state
+    loadApp(); // initialize dashboard
   } else {
-    showPage("loginPage");
+    showPage("loginPage"); // show login screen
   }
 };

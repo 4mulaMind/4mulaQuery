@@ -1,0 +1,70 @@
+/* =========================================================
+   APPLICATION HEADER
+   Main branding section with logo, title and typing text
+   ========================================================= */
+
+.app-header {
+  text-align: center;
+  padding: 36px 24px 8px;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================================================
+   HEADER LOGO
+   Application logo displayed above title
+   ========================================================= */
+
+.app-header img {
+  width: 90px;
+  height: 90px;
+  border-radius: 20px;
+
+  object-fit: cover;
+  margin-bottom: 16px;
+
+  box-shadow: 
+    0 8px 28px rgba(212, 175, 55, 0.25),
+    0 0 0 1px var(--border);
+}
+
+
+/* =========================================================
+   APPLICATION TITLE
+   Main heading (4mulaQuery)
+   ========================================================= */
+
+.app-header h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+
+/* Highlighted brand text */
+.app-header h1 span {
+  color: var(--gold);
+}
+
+
+/* =========================================================
+   TYPING ANIMATION TEXT
+   Dynamic text that changes automatically
+   ========================================================= */
+
+#dynamic-text {
+  font-size: 1.1em;
+  font-weight: 700;
+
+  color: var(--gold);
+
+  min-height: 1.6em;
+  margin-bottom: 8px;
+
+  font-family: "DM Mono", monospace;
+  letter-spacing: 0.02em;
+}

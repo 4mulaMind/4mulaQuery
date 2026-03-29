@@ -1,17 +1,11 @@
 /**
  * =========================================================
- *    4mulaQuery — Authentication Module
+ *    AUTH MODULE
  *    ---------------------------------------------------------
- *    Handles:
- *    - User Login
- *    - User Signup
- *    - Password Reset (OTP based)
- *    - Session Management
- *    - Toast Notifications
- *    - Logout functionality
- *
- *    Storage: Browser LocalStorage
- *    Author: Abdul Qadir
+ *    Handles user authentication, session storage, and
+ *    account management using browser localStorage.
+ *    Includes login, signup, logout, OTP password reset,
+ *    and account settings update functionality.
  * =========================================================
  *
  * @format
@@ -19,58 +13,52 @@
 
 /* ---------------------------------------------------------
    Global Authentication State
+   ---------------------------------------------------------
+   currentUser   → logged-in user object
+   generatedOtp  → temporary OTP for password reset
+   otpEmail      → email used during OTP verification
 --------------------------------------------------------- */
-
-// Currently logged-in user object
 let currentUser = null;
-
-// Temporary OTP used for password reset
 let generatedOtp = null;
-
-// Email associated with the OTP request
 let otpEmail = null;
 
 /* ---------------------------------------------------------
-   LocalStorage Utility Functions
-   Used to persist users and session data
+   Local Storage Utilities
+   ---------------------------------------------------------
+   getUsers()    → fetch registered users
+   saveUsers()   → save updated users
+   getSession()  → retrieve active session
+   saveSession() → store logged-in user session
 --------------------------------------------------------- */
-
-// Fetch all registered users from storage
 function getUsers() {
   return JSON.parse(localStorage.getItem("fq_users") || "{}");
 }
 
-// Save users object back to storage
 function saveUsers(u) {
   localStorage.setItem("fq_users", JSON.stringify(u));
 }
 
-// Get current active user session
 function getSession() {
   return JSON.parse(localStorage.getItem("fq_session") || "null");
 }
 
-// Save active user session
 function saveSession(u) {
   localStorage.setItem("fq_session", JSON.stringify(u));
 }
 
 /* ---------------------------------------------------------
-   showPage()
-   Switch between authentication screens
-
-   Pages:
-   - loginPage
-   - signupPage
-   - forgotPage
+   Page Navigation Controller
+   ---------------------------------------------------------
+   Shows one auth page at a time:
+   - Login
+   - Signup
+   - Forgot Password
 --------------------------------------------------------- */
 function showPage(id) {
-  // Hide all auth pages
   ["loginPage", "signupPage", "forgotPage"].forEach((p) => {
     document.getElementById(p).style.display = "none";
   });
 
-  // Show selected page
   document.getElementById(id).style.display = "flex";
 
   // Reset forgot password steps
@@ -82,57 +70,50 @@ function showPage(id) {
 }
 
 /* ---------------------------------------------------------
-   showToast()
-   Displays status messages in the UI
-
-   Types:
-   - error
-   - success
+   Toast Notification System
+   ---------------------------------------------------------
+   Displays temporary messages for user actions
 --------------------------------------------------------- */
 function showToast(id, msg, type = "error") {
   const el = document.getElementById(id);
 
   el.textContent = msg;
-
-  // Apply toast style
   el.className = `toast ${type} show`;
 
-  // Auto-hide after delay
-  setTimeout(() => (el.className = `toast ${type}`), 3500);
+  setTimeout(() => {
+    el.className = `toast ${type}`;
+  }, 3500);
 }
 
 /* ---------------------------------------------------------
-   doLogin()
-   Authenticates existing user
+   Login Handler
+   ---------------------------------------------------------
+   Validates user credentials and creates session
 --------------------------------------------------------- */
 function doLogin() {
   const email = document.getElementById("loginEmail").value.trim();
   const pass = document.getElementById("loginPass").value;
 
-  // Validate inputs
   if (!email || !pass) return showToast("loginToast", "Please fill all fields");
 
   const users = getUsers();
 
-  // Check if user exists
   if (!users[email])
     return showToast("loginToast", "Account not found. Sign up first.");
 
-  // Validate password
   if (users[email].password !== btoa(pass))
     return showToast("loginToast", "Incorrect password.");
 
-  // Set current session
   currentUser = users[email];
   saveSession(currentUser);
 
-  // Load main application
-  loadApp(); // defined in app.js
+  loadApp(); // from app.js
 }
 
 /* ---------------------------------------------------------
-   doSignup()
-   Registers a new user
+   Signup Handler
+   ---------------------------------------------------------
+   Creates new user and stores in localStorage
 --------------------------------------------------------- */
 function doSignup() {
   const name = document.getElementById("signupName").value.trim();
@@ -140,24 +121,19 @@ function doSignup() {
   const pass = document.getElementById("signupPass").value;
   const pass2 = document.getElementById("signupPass2").value;
 
-  // Basic validation
   if (!name || !email || !pass)
     return showToast("signupToast", "Please fill all fields");
 
-  // Password confirmation
   if (pass !== pass2) return showToast("signupToast", "Passwords do not match");
 
-  // Password length check
   if (pass.length < 6)
     return showToast("signupToast", "Min 6 characters required");
 
   const users = getUsers();
 
-  // Prevent duplicate accounts
   if (users[email])
     return showToast("signupToast", "Email already registered.");
 
-  // Save new user
   users[email] = {
     name,
     email,
@@ -166,19 +142,18 @@ function doSignup() {
 
   saveUsers(users);
 
-  // Start user session
   currentUser = users[email];
   saveSession(currentUser);
 
   showToast("signupToast", "Account created! Loading...", "success");
 
-  // Load application
   setTimeout(loadApp, 800);
 }
 
 /* ---------------------------------------------------------
-   sendOtp()
-   Generates OTP for password reset
+   OTP Generator (Password Reset)
+   ---------------------------------------------------------
+   Generates 4-digit OTP and moves to verification step
 --------------------------------------------------------- */
 function sendOtp() {
   const email = document.getElementById("forgotEmail").value.trim();
@@ -187,19 +162,15 @@ function sendOtp() {
 
   const users = getUsers();
 
-  // Check account exists
   if (!users[email])
     return showToast("forgotToast", "No account with this email.");
 
   otpEmail = email;
 
-  // Generate random 4-digit OTP
   generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
-  // Display OTP (for demo purposes)
   showToast("forgotToast", `Your OTP: ${generatedOtp}`, "success");
 
-  // Move to OTP step
   setTimeout(() => {
     document.getElementById("fStep1").style.display = "none";
     document.getElementById("fStep2").style.display = "block";
@@ -207,8 +178,9 @@ function sendOtp() {
 }
 
 /* ---------------------------------------------------------
-   otpNext()
-   Automatically move cursor to next OTP input
+   OTP Input Auto-Focus
+   ---------------------------------------------------------
+   Moves cursor automatically to next OTP field
 --------------------------------------------------------- */
 function otpNext(el, idx) {
   if (el.value && idx < 3) {
@@ -217,8 +189,7 @@ function otpNext(el, idx) {
 }
 
 /* ---------------------------------------------------------
-   verifyOtp()
-   Validates entered OTP
+   OTP Verification
 --------------------------------------------------------- */
 function verifyOtp() {
   const entered = [...document.querySelectorAll(".otp-input")]
@@ -228,14 +199,12 @@ function verifyOtp() {
   if (entered !== generatedOtp)
     return showToast("forgotToast", "Invalid OTP. Try again.");
 
-  // Proceed to password reset
   document.getElementById("fStep2").style.display = "none";
   document.getElementById("fStep3").style.display = "block";
 }
 
 /* ---------------------------------------------------------
-   resetPass()
-   Updates user password
+   Password Reset Handler
 --------------------------------------------------------- */
 function resetPass() {
   const p1 = document.getElementById("newPass").value;
@@ -248,7 +217,6 @@ function resetPass() {
 
   const users = getUsers();
 
-  // Update stored password
   users[otpEmail].password = btoa(p1);
 
   saveUsers(users);
@@ -259,21 +227,97 @@ function resetPass() {
 }
 
 /* ---------------------------------------------------------
-   doLogout()
-   Ends user session and returns to login page
+   Logout Handler
+   ---------------------------------------------------------
+   Clears session and returns to login screen
 --------------------------------------------------------- */
 function doLogout() {
-  // Remove session from storage
   localStorage.removeItem("fq_session");
 
   currentUser = null;
 
-  // Hide main application
   document.getElementById("app").style.display = "none";
 
-  // Stop typing animation if active
   if (window.typingTimer) clearTimeout(window.typingTimer);
 
-  // Redirect to login page
   showPage("loginPage");
+}
+
+/* ---------------------------------------------------------
+   Application Loader
+   ---------------------------------------------------------
+   Loads dashboard after successful login
+--------------------------------------------------------- */
+function loadApp() {
+  const s = currentUser || getSession();
+
+  if (!s) return;
+
+  currentUser = s;
+
+  ["loginPage", "signupPage", "forgotPage"].forEach((p) => {
+    document.getElementById(p).style.display = "none";
+  });
+
+  document.getElementById("app").style.display = "block";
+
+  document.getElementById("userNm").textContent = currentUser.name;
+  document.getElementById("userAv").textContent =
+    currentUser.name[0].toUpperCase();
+
+  document.getElementById("setName").value = currentUser.name;
+  document.getElementById("setEmail").value = currentUser.email;
+
+  startTyping(); // app.js
+  fetchAll(true); // api.js
+}
+
+/* ---------------------------------------------------------
+   Account Settings Update
+--------------------------------------------------------- */
+function saveSettings() {
+  const name = document.getElementById("setName").value.trim();
+  const pass = document.getElementById("setPass").value;
+  const pass2 = document.getElementById("setPass2").value;
+
+  if (!name) return showToast("setToast", "Name cannot be empty");
+
+  if (pass && pass !== pass2)
+    return showToast("setToast", "Passwords do not match");
+
+  if (pass && pass.length < 6) return showToast("setToast", "Min 6 characters");
+
+  const users = getUsers();
+
+  users[currentUser.email].name = name;
+
+  if (pass) users[currentUser.email].password = btoa(pass);
+
+  saveUsers(users);
+
+  currentUser = users[currentUser.email];
+  saveSession(currentUser);
+
+  document.getElementById("userNm").textContent = currentUser.name;
+  document.getElementById("userAv").textContent =
+    currentUser.name[0].toUpperCase();
+
+  showToast("setToast", "Saved successfully!", "success");
+}
+
+/* ---------------------------------------------------------
+   Section Switcher (Dashboard Navigation)
+--------------------------------------------------------- */
+function switchSec(name, el) {
+  document
+    .querySelectorAll(".section")
+    .forEach((s) => s.classList.remove("active"));
+
+  document
+    .querySelectorAll(".tnav")
+    .forEach((n) => n.classList.remove("active"));
+
+  document.getElementById("sec-" + name).classList.add("active");
+
+  el.classList.add("active");
 }
