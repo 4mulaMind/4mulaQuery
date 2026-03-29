@@ -1,207 +1,247 @@
-/* =========================================================
-   4mulaQuery — Global Stylesheet
-   ---------------------------------------------------------
-   Author : Abdul Qadir
-   Theme  : Dark Navy + Gold Luxury Tech
+/* =====================================================
+   4mulaQuery — Main Stylesheet
+   UI Theme: Dark Navy + Gold
+   Author: Abdul Qadir
 
-   Description
-   ---------------------------------------------------------
-   Defines the global design system and UI styling for
-   the 4mulaQuery intelligent database interface.
-
-   Includes styling for:
-   • Authentication pages
-   • Dashboard layout
-   • Navigation bar
-   • Database table
-   • Query console
-   • Notifications and animations
-========================================================= */
+   This stylesheet contains:
+   - Global theme variables
+   - Authentication UI
+   - Application dashboard
+   - Database explorer
+   - Query console
+   - Settings panel
+===================================================== */
 
 
-/* =========================================================
-   DESIGN SYSTEM — CSS VARIABLES
-   ---------------------------------------------------------
-   Centralized color palette and UI tokens used across
-   the entire application for consistent theming.
-========================================================= */
+/* =====================================================
+   COLOR SYSTEM & GLOBAL VARIABLES
+   Centralized theme configuration
+===================================================== */
 :root {
+
+  /* Background Layers */
   --bg:      #0a0e1a;
   --bg2:     #0f1525;
   --bg3:     #151d32;
+
+  /* Brand Colors */
   --navy:    #001f3f;
   --gold:    #d4af37;
   --gold2:   #f0cc5a;
   --gold3:   #8a6f1e;
+
+  /* Text Colors */
   --cream:   #f5f0e0;
   --text:    #c8d8f0;
   --text2:   #6a85a8;
+
+  /* Borders & Glass Effect */
   --border:  rgba(212,175,55,0.25);
   --border2: rgba(212,175,55,0.12);
   --glass:   rgba(15,21,37,0.85);
+
+  /* Status Colors */
   --success: #2ecc71;
   --error:   #e74c3c;
+
+  /* Shadow */
   --shadow:  0 20px 60px rgba(0,0,0,0.5);
 }
 
 
-/* =========================================================
+/* =====================================================
    GLOBAL RESET
-   ---------------------------------------------------------
-   Removes default browser spacing and enables
-   consistent box sizing across all elements.
-========================================================= */
-* { margin:0; padding:0; box-sizing:border-box; }
-
-
-/* =========================================================
-   BODY LAYOUT
-   ---------------------------------------------------------
-   Defines the global typography, background color,
-   and base layout for the entire application.
-========================================================= */
-body {
-  font-family: "Syne", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
+   Removes default browser spacing
+===================================================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 
-/* =========================================================
-   BACKGROUND GRADIENT EFFECT
-   ---------------------------------------------------------
-   Adds subtle radial glow effects to create depth
-   and enhance the luxury dark theme.
-========================================================= */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
+/* =====================================================
+   BODY BASE STYLES
+   Main font + background color
+===================================================== */
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+
+/* =====================================================
+   BACKGROUND GLOW EFFECT
+   Subtle radial lighting
+===================================================== */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+
   background:
-    radial-gradient(ellipse 70% 50% at 10% 10%, rgba(212,175,55,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 90% 90%, rgba(0,31,63,0.4) 0%, transparent 60%);
-  pointer-events: none;
+    radial-gradient(ellipse 70% 50% at 10% 10%, rgba(212,175,55,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 90%, rgba(0,31,63,0.4) 0%,transparent 60%);
+
+  pointer-events:none;
 }
 
 
-/* =========================================================
+/* =====================================================
    GRID BACKGROUND
-   ---------------------------------------------------------
-   Decorative grid overlay used to create a
-   futuristic technology-style interface.
-========================================================= */
-.grid-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+   Subtle tech-style grid pattern
+===================================================== */
+.grid-bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+
   background-image:
-    linear-gradient(rgba(212,175,55,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(212,175,55,0.03) 1px, transparent 1px);
-  background-size: 52px 52px;
+    linear-gradient(rgba(212,175,55,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(212,175,55,0.03) 1px,transparent 1px);
+
+  background-size:52px 52px;
 }
 
 
-/* =========================================================
+
+/* =====================================================
    AUTHENTICATION PAGES
-   ---------------------------------------------------------
-   Layout and styling for login, signup, and password
-   recovery interfaces.
-========================================================= */
-.auth-wrap {
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+   Login / Signup / Forgot Password
+===================================================== */
+
+.auth-wrap{
+  position:relative;
+  z-index:10;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
 }
 
 
-/* =========================================================
-   AUTH CARD COMPONENT
-   ---------------------------------------------------------
-   Glassmorphism style container used for authentication
-   forms (login, signup, OTP verification).
-========================================================= */
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 44px 38px;
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(212,175,55,0.1);
-  animation: cardUp 0.5s cubic-bezier(0.16,1,0.3,1);
+/* Glass Card Container */
+.auth-card{
+
+  width:100%;
+  max-width:420px;
+
+  background:var(--glass);
+  backdrop-filter:blur(20px);
+
+  border:1px solid var(--border);
+  border-radius:24px;
+
+  padding:44px 38px;
+
+  box-shadow:var(--shadow),
+             inset 0 1px 0 rgba(212,175,55,0.1);
+
+  animation:cardUp 0.5s cubic-bezier(0.16,1,0.3,1);
 }
 
 
-/* =========================================================
-   CARD ENTRANCE ANIMATION
-   ---------------------------------------------------------
-   Smooth fade-in and upward motion for UI cards.
-========================================================= */
-@keyframes cardUp {
-  from { opacity:0; transform:translateY(28px) scale(0.97); }
-  to   { opacity:1; transform:none; }
+/* Card entrance animation */
+@keyframes cardUp{
+  from{
+    opacity:0;
+    transform:translateY(28px) scale(0.97)
+  }
+  to{
+    opacity:1;
+    transform:none
+  }
 }
 
 
-/* =========================================================
-   MAIN APPLICATION LAYOUT
-   ---------------------------------------------------------
-   Root container for the main dashboard UI that becomes
-   visible after successful authentication.
-========================================================= */
-#app { display:none; position:relative; z-index:10; }
 
+/* =====================================================
+   APPLICATION TOPBAR
+   Navigation + user controls
+===================================================== */
 
-/* =========================================================
-   TOP NAVIGATION BAR
-   ---------------------------------------------------------
-   Sticky navigation header containing branding,
-   navigation links, and user profile controls.
-========================================================= */
-.topbar {
+.topbar{
+
   position:sticky;
   top:0;
   z-index:100;
+
   background:rgba(10,14,26,0.95);
   backdrop-filter:blur(16px);
+
   border-bottom:1px solid var(--border);
+
   height:64px;
   padding:0 28px;
+
   display:flex;
   align-items:center;
   justify-content:space-between;
 }
 
 
-/* =========================================================
-   DASHBOARD LAYOUT
-   ---------------------------------------------------------
-   Main content container that holds all application
-   sections such as dashboard, explorer, and console.
-========================================================= */
-.main {
-  max-width:980px;
-  margin:0 auto;
-  padding:20px 24px 36px;
+/* Left section: logo + branding */
+.topbar-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
 }
 
 
-/* =========================================================
-   STATISTICS CARDS
-   ---------------------------------------------------------
-   Displays live metrics and system information on
-   the dashboard.
-========================================================= */
-.stats-row {
+/* Top navigation buttons */
+.topbar-nav{
+  display:flex;
+  gap:2px;
+}
+
+
+/* Navigation button */
+.tnav{
+
+  padding:8px 16px;
+  border-radius:8px;
+
+  cursor:pointer;
+
+  font-size:0.85rem;
+  font-weight:600;
+
+  color:var(--text2);
+
+  border:none;
+  background:none;
+
+  font-family:'Syne',sans-serif;
+
+  transition:all 0.2s;
+}
+
+
+.tnav:hover{
+  color:var(--text);
+  background:rgba(255,255,255,0.05);
+}
+
+
+/* Active navigation tab */
+.tnav.active{
+  color:var(--gold);
+  background:rgba(212,175,55,0.1);
+}
+
+
+
+/* =====================================================
+   DASHBOARD STAT CARDS
+===================================================== */
+
+.stats-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:16px;
@@ -209,44 +249,154 @@ body::before {
 }
 
 
-/* =========================================================
+/* Individual stat card */
+.stat-card{
+
+  background:var(--bg2);
+  border:1px solid var(--border2);
+
+  border-radius:16px;
+
+  padding:20px 22px;
+
+  transition:all 0.2s;
+}
+
+
+.stat-card:hover{
+  border-color:var(--border);
+  transform:translateY(-2px);
+}
+
+
+
+/* =====================================================
+   DATABASE OUTPUT PANEL
+===================================================== */
+
+.out-panel{
+
+  background:rgba(5,8,16,0.9);
+
+  border:1px solid var(--border2);
+
+  border-radius:16px;
+
+  overflow:hidden;
+}
+
+
+.out-body{
+  padding:20px;
+  min-height:160px;
+}
+
+
+
+/* =====================================================
    DATABASE TABLE
-   ---------------------------------------------------------
-   Table styling used to display stored database
-   records in the Data Explorer module.
-========================================================= */
-.db-table {
+   Used in Explorer and Dashboard
+===================================================== */
+
+.db-table{
   width:100%;
   border-collapse:collapse;
 }
 
 
-/* =========================================================
+/* Table Header */
+.db-table th{
+
+  font-size:0.68rem;
+
+  font-weight:700;
+
+  text-transform:uppercase;
+
+  letter-spacing:0.1em;
+
+  color:var(--gold3);
+
+  padding:8px 14px;
+
+  text-align:left;
+
+  border-bottom:1px solid var(--border2);
+
+  font-family:'DM Mono',monospace;
+}
+
+
+/* Table Data */
+.db-table td{
+
+  padding:11px 14px;
+
+  font-family:'DM Mono',monospace;
+
+  font-size:0.83rem;
+
+  color:var(--text);
+
+  border-bottom:1px solid rgba(212,175,55,0.04);
+
+  transition:background 0.15s;
+}
+
+
+/* Row hover effect */
+.db-table tr:hover td{
+  background:rgba(212,175,55,0.04);
+}
+
+
+
+/* =====================================================
    QUERY CONSOLE
-   ---------------------------------------------------------
-   Terminal-style input used to execute commands
-   directly against the database engine.
-========================================================= */
-.console-input {
+   Terminal-style command interface
+===================================================== */
+
+.console-input{
+
   display:flex;
+
   gap:10px;
+
   align-items:center;
+
   background:rgba(5,8,16,0.9);
+
   border:1px solid var(--border2);
+
   border-radius:12px;
+
   padding:10px 14px;
+
   margin-bottom:14px;
 }
 
 
-/* =========================================================
-   RESPONSIVE DESIGN
-   ---------------------------------------------------------
-   Adjusts layout for tablets and mobile devices.
-========================================================= */
-@media(max-width:768px) {
-  .stats-row { grid-template-columns:1fr; }
-  .ops-grid  { grid-template-columns:1fr 1fr; }
-  .topbar-nav { display:none; }
-  .app-header h1 { font-size:2rem; }
+
+/* =====================================================
+   MOBILE RESPONSIVE DESIGN
+===================================================== */
+
+@media(max-width:768px){
+
+  .stats-row{
+    grid-template-columns:1fr;
+  }
+
+  .ops-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .topbar-nav{
+    display:none;
+  }
+
+  .app-header h1{
+    font-size:2rem;
+  }
+
 }

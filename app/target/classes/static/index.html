@@ -1,117 +1,200 @@
-<!-- @format -->
-
-<!-- =========================================================
-     4mulaQuery — Main Application HTML
-     ---------------------------------------------------------
-     Author  : Abdul Qadir
-     Version : 1.0
-
-     Description
-     ---------------------------------------------------------
-     This file defines the full frontend UI structure of
-     the 4mulaQuery intelligent database engine.
-
-     Modules Used
-     ---------------------------------------------------------
-     index.html  → UI structure
-     css/style.css → Styling and layout
-     js/auth.js  → Authentication logic
-     js/api.js   → Backend API communication
-     js/app.js   → App initialization and navigation
-
-     Theme
-     ---------------------------------------------------------
-     Navy + Gold luxury tech interface
-========================================================= -->
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
 
-  <!-- Character encoding -->
+  <!-- =========================================
+       META CONFIGURATION
+       Character encoding and responsive setup
+  ========================================== -->
   <meta charset="UTF-8"/>
-
-  <!-- Responsive layout for mobile devices -->
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 
-  <!-- Page title -->
+  <!-- =========================================
+       PAGE TITLE
+       Main application title shown in browser
+  ========================================== -->
   <title>4mulaQuery | Intelligent Database Engine</title>
 
-  <!-- Website favicon -->
-  <link rel="icon" type="image/png" href="/Logo.jpg"/>
-
-  <!-- Google Fonts used in UI -->
+  <!-- =========================================
+       GOOGLE FONTS
+       Syne → headings
+       DM Mono → terminal / console style text
+  ========================================== -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 
-  <!-- Main stylesheet -->
-  <link rel="stylesheet" href="/css/style.css"/>
+  <!-- =========================================
+       GLOBAL STYLESHEET
+       Contains layout, colors and UI styles
+  ========================================== -->
+  <link rel="stylesheet" href="style.css"/>
 
 </head>
 
+
 <body>
 
-<!-- =====================================================
+<!-- =========================================
      BACKGROUND GRID EFFECT
-     Decorative animated background used across UI
-===================================================== -->
+     Decorative animated background layer
+========================================== -->
 <div class="grid-bg"></div>
 
 
 <!-- =====================================================
      LOGIN PAGE
-     -----------------------------------------------------
-     Allows existing users to log into the application.
-     Includes email + password authentication.
+     Authentication entry screen for existing users
 ===================================================== -->
 <div id="loginPage" class="auth-wrap">
 
   <div class="auth-card">
 
-    <!-- Application logo and branding -->
+    <!-- Application Logo + Branding -->
     <div class="auth-logo">
       <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
       <h1>4mula<span>Query</span></h1>
       <p>// intelligent database engine</p>
     </div>
 
-    <!-- Login error / success notification -->
+    <!-- Login Error / Success Toast -->
     <div id="loginToast" class="toast error"></div>
 
-    <!-- Page heading -->
+    <!-- Login Form Header -->
     <div class="auth-title">Welcome back</div>
     <div class="auth-sub">Sign in to access your database</div>
 
-    <!-- Email input -->
+    <!-- Email Field -->
     <div class="field">
       <label>Email</label>
       <input type="email" id="loginEmail" placeholder="you@example.com"/>
     </div>
 
-    <!-- Password input -->
+    <!-- Password Field -->
     <div class="field">
       <label>Password</label>
       <input type="password" id="loginPass" placeholder="••••••••"
       onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
 
-    <!-- Password recovery link -->
+    <!-- Forgot Password Link -->
     <div class="forgot-link">
       <a href="#" onclick="showPage('forgotPage')">Forgot password?</a>
     </div>
 
-    <!-- Login button -->
+    <!-- Login Button -->
     <button class="btn-primary" onclick="doLogin()">Sign In →</button>
 
     <!-- Divider -->
     <div class="auth-divider">or</div>
 
-    <!-- Signup navigation -->
+    <!-- Signup Redirect -->
     <div class="auth-link">
-      No account? 
+      No account?
       <a href="#" onclick="showPage('signupPage')">Create one</a>
     </div>
 
   </div>
-
 </div>
+
+
+
+<!-- =====================================================
+     SIGNUP PAGE
+     New user account registration form
+===================================================== -->
+<div id="signupPage" class="auth-wrap" style="display:none">
+
+  <div class="auth-card">
+
+    <!-- Branding -->
+    <div class="auth-logo">
+      <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
+      <h1>4mula<span>Query</span></h1>
+      <p>// intelligent database engine</p>
+    </div>
+
+    <!-- Signup Status Toast -->
+    <div id="signupToast" class="toast"></div>
+
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Join 4mulaQuery and start querying</div>
+
+    <!-- User Name -->
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="signupName" placeholder="Your name"/>
+    </div>
+
+    <!-- Email -->
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="signupEmail" placeholder="you@example.com"/>
+    </div>
+
+    <!-- Password -->
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="signupPass" placeholder="Min 6 characters"/>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" id="signupPass2"
+      placeholder="Same as above"
+      onkeydown="if(event.key==='Enter')doSignup()"/>
+    </div>
+
+    <!-- Create Account Button -->
+    <button class="btn-primary" onclick="doSignup()">Create Account →</button>
+
+    <div class="auth-divider">or</div>
+
+    <!-- Redirect to Login -->
+    <div class="auth-link">
+      Already have one?
+      <a href="#" onclick="showPage('loginPage')">Sign in</a>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- =====================================================
+     FORGOT PASSWORD MODULE
+     3 Step Password Reset Flow
+     1 → Email
+     2 → OTP Verification
+     3 → New Password
+===================================================== -->
+<div id="forgotPage" class="auth-wrap" style="display:none">
+
+  <div class="auth-card">
+
+    <!-- Branding -->
+    <div class="auth-logo">
+      <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
+      <h1>4mula<span>Query</span></h1>
+      <p>// intelligent database engine</p>
+    </div>
+
+    <div id="forgotToast" class="toast"></div>
+
+    <!-- STEP 1 : EMAIL INPUT -->
+    <div id="fStep1">
+
+      <div class="auth-title">Reset password</div>
+      <div class="auth-sub">
+        Enter your email to receive a verification code
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="forgotEmail"
+        placeholder="you@example.com"/>
+      </div>
+
+      <button class="btn-primary" onclick="sendOtp()">Send Code →</button>
+
+    </div>

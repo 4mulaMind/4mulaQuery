@@ -1,32 +1,19 @@
 /**
  * =========================================================
- *    4mulaQuery — app.js
- *    ---------------------------------------------------------
- *    Application Core Module
- *
- *    This module controls the main client-side behavior of
- *    the 4mulaQuery web application.
- *
- *    Responsibilities
- *    • Hero typing animation
- *    • Application initialization
- *    • User session loading
- *    • Section navigation handling
- *
- *    Author  : Abdul Qadir
- *    Project : 4mulaQuery Intelligent Database Engine
+ *    4mulaQuery - app.js
+ *    Main App UI & Initialization Module
+ *    Handles App Startup, Typing Animation, and Navigation
+ *    Author: Abdul Qadir
  * =========================================================
  *
  * @format
  */
 
-/* =========================================================
-   Hero Typing Animation Configuration
----------------------------------------------------------
-   List of phrases displayed in the dashboard hero area.
-   The animation simulates typing and deleting characters
-   to highlight key features of the system.
-========================================================= */
+/* ---------------------------------------------------------
+   Typing Animation Variables
+--------------------------------------------------------- */
+let typingTimer = null;
+
 const phrases = [
   "Fastest C++ B-Tree Engine",
   "Spring Boot + Docker Integrated",
@@ -37,31 +24,16 @@ const phrases = [
   "Next Generation Query Analyzer",
   "Smart Database Exploration",
   "Predictive SQL Execution Engine",
+  "Developed by Abdul Qadir"
 ];
 
-/* =========================================================
-   Typing Animation State Variables
----------------------------------------------------------
-   pIndex      : Current phrase index
-   cIndex      : Current character index
-   deleting    : Indicates typing or deleting state
-   typingTimer : Timer reference for animation loop
-========================================================= */
-let pIndex = 0;
-let cIndex = 0;
-let deleting = false;
-let typingTimer = null;
+let pIndex = 0; // Current phrase index
+let cIndex = 0; // Current character index
+let deleting = false; // Typing or deleting state
 
-/* =========================================================
-   startTyping()
----------------------------------------------------------
-   Initializes the hero typing animation.
-
-   Behavior
-   • Clears any existing animation timer
-   • Resets phrase and character indexes
-   • Starts the animation loop
-========================================================= */
+/* ---------------------------------------------------------
+   startTyping() — Initialize typing animation
+--------------------------------------------------------- */
 function startTyping() {
   if (typingTimer) clearTimeout(typingTimer);
 
@@ -72,63 +44,50 @@ function startTyping() {
   typeNext();
 }
 
-/* =========================================================
-   typeNext()
----------------------------------------------------------
-   Core typing animation engine.
-
-   Responsibilities
-   • Updates the displayed text character by character
-   • Controls typing and deleting phases
-   • Cycles through all phrases continuously
-========================================================= */
+/* ---------------------------------------------------------
+   typeNext() — Core typing animation engine
+--------------------------------------------------------- */
 function typeNext() {
   const el = document.getElementById("dynamic-text");
+
   if (!el) return;
 
   const text = phrases[pIndex];
 
-  // Update text content based on animation state
+  // Update text content (typing / deleting)
   el.textContent = deleting
     ? text.substring(0, cIndex--)
     : text.substring(0, cIndex++);
 
-  // Phrase fully typed → pause then begin deletion
+  // Phrase finished typing
   if (!deleting && cIndex > text.length) {
     deleting = true;
+
     typingTimer = setTimeout(typeNext, 2000);
   }
 
-  // Phrase fully deleted → move to next phrase
+  // Phrase completely deleted
   else if (deleting && cIndex === 0) {
     deleting = false;
+
     pIndex = (pIndex + 1) % phrases.length;
 
     typingTimer = setTimeout(typeNext, 500);
   }
 
-  // Continue typing or deleting animation
+  // Continue animation
   else {
     typingTimer = setTimeout(typeNext, deleting ? 50 : 100);
   }
 }
 
-/* =========================================================
-   loadApp()
----------------------------------------------------------
-   Initializes the main application interface after
-   successful authentication.
-
-   Responsibilities
-   • Restore user session
-   • Hide authentication pages
-   • Display main dashboard
-   • Populate user profile information
-   • Start hero animation
-   • Load database data asynchronously
-========================================================= */
+/* ---------------------------------------------------------
+   loadApp() — Initialize main application UI
+   Runs after successful login
+--------------------------------------------------------- */
 function loadApp() {
   const s = currentUser || getSession();
+
   if (!s) return;
 
   currentUser = s;
@@ -138,69 +97,91 @@ function loadApp() {
     document.getElementById(p).style.display = "none";
   });
 
-  // Display main application container
+  // Show main application
   document.getElementById("app").style.display = "block";
 
-  // Populate user information in navigation bar
+  // Update user info in navbar
   document.getElementById("userNm").textContent = currentUser.name;
   document.getElementById("userAv").textContent =
     currentUser.name[0].toUpperCase();
 
-  // Prefill user settings form
+  // Fill settings form
   document.getElementById("setName").value = currentUser.name;
   document.getElementById("setEmail").value = currentUser.email;
 
   // Start hero typing animation
   startTyping();
 
-  // Fetch database records in background
+  // Load database records silently
   fetchAll(true);
 }
 
-/* =========================================================
-   switchSec()
----------------------------------------------------------
-   Handles navigation between application sections.
+/* ---------------------------------------------------------
+   saveSettings() — Update user profile settings
+--------------------------------------------------------- */
+function saveSettings() {
+  const name = document.getElementById("setName").value.trim();
+  const pass = document.getElementById("setPass").value;
+  const pass2 = document.getElementById("setPass2").value;
 
-   Behavior
-   • Deactivates current section and navigation item
-   • Activates selected section and navigation tab
+  if (!name) return showToast("setToast", "Name cannot be empty");
 
-   Parameters
-   name : target section name
-   el   : clicked navigation element
-========================================================= */
+  if (pass && pass !== pass2)
+    return showToast("setToast", "Passwords do not match");
+
+  if (pass && pass.length < 6) return showToast("setToast", "Min 6 characters");
+
+  const users = getUsers();
+
+  // Update user name
+  users[currentUser.email].name = name;
+
+  // Update password if provided
+  if (pass) users[currentUser.email].password = btoa(pass);
+
+  saveUsers(users);
+
+  currentUser = users[currentUser.email];
+
+  saveSession(currentUser);
+
+  // Update navbar info
+  document.getElementById("userNm").textContent = currentUser.name;
+  document.getElementById("userAv").textContent =
+    currentUser.name[0].toUpperCase();
+
+  showToast("setToast", "Saved successfully!", "success");
+}
+
+/* ---------------------------------------------------------
+   switchSec() — Section Navigation System
+--------------------------------------------------------- */
 function switchSec(name, el) {
+  // Hide all sections
   document
     .querySelectorAll(".section")
     .forEach((s) => s.classList.remove("active"));
 
+  // Remove active navigation
   document
     .querySelectorAll(".tnav")
     .forEach((n) => n.classList.remove("active"));
 
+  // Activate selected section
   document.getElementById("sec-" + name).classList.add("active");
 
   el.classList.add("active");
 }
 
-/* =========================================================
-   Application Entry Point
----------------------------------------------------------
-   window.onload
-
-   Executed when the page finishes loading.
-
-   Behavior
-   • Checks for an existing user session
-   • Loads main application if session exists
-   • Otherwise redirects to login page
-========================================================= */
+/* ---------------------------------------------------------
+   window.onload — Application Entry Point
+--------------------------------------------------------- */
 window.onload = () => {
   const s = getSession();
 
   if (s) {
     currentUser = s;
+
     loadApp();
   } else {
     showPage("loginPage");
