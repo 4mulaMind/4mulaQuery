@@ -1,111 +1,73 @@
-
-/*
-============================================================
-4mulaQuery - Engine Process Service (The Bridge)
-============================================================
-
-File Location: 
-/src/main/java/com/formulaquery/api/EngineService.java
-
-Purpose:
-The low-level execution bridge that spawns the C++ Kernel 
-as a sub-process, manages I/O streams, and captures 
-database responses.
-
-Features:
-• Native Process Management
-• Stream Redirection (Input/Output)
-• Automatic Resource Cleanup
-
-Developed by: Abdul Qadir
-============================================================
-*/
-
 package com.formulaquery.api;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
 /**
- * ====================================================
- * CLASS: EngineService
- * ====================================================
- * Acts as the 'Nervous System' of the application. 
- * It takes high-level commands and pipes them into 
- * the C++ binary for execution.
- * ====================================================
+ * EngineService — Main orchestrator for 4mulaQuery engine.
+ * Coordinates command execution via C++ engine and logs queries for ML.
+ *
+ * Components:
+ *  • ProcessManager — handles C++ process lifecycle
+ *  • StreamHandler  — handles stdin/stdout communication
+ *  • QueryLogger    — logs query and execution time
+ *
+ * OOP Principles:
+ *  • Single Responsibility — each class has one responsibility
+ *  • Composition          — uses injected components
+ *  • Encapsulation        — internal details are hidden
  */
 public class EngineService {
 
-    private final String enginePath;
+    private final ProcessManager processManager;
+    private final StreamHandler  streamHandler;
+    private final QueryLogger    queryLogger;
 
+    /**
+     * Initializes EngineService with path to C++ engine.
+     *
+     * @param enginePath Path to C++ binary (e.g., "./core/4mulaQuery")
+     */
     public EngineService(String enginePath) {
-        this.enginePath = enginePath;
+        this.processManager = new ProcessManager(enginePath);
+        this.streamHandler  = new StreamHandler();
+        this.queryLogger    = new QueryLogger();
     }
 
     /**
-     * ----------------------------------------------------
-     * METHOD: executeCommand()
-     * ----------------------------------------------------
-     * Spawns a new C++ process, sends the command, 
-     * and reads the result.
-     * ----------------------------------------------------
-     * @param command The CSV formatted instruction
-     * @return String output from the C++ Kernel
+     * Executes a CSV-formatted command via the C++ engine.
+     * Steps:
+     *  1. Start the C++ process
+     *  2. Send command to process
+     *  3. Read output from process
+     *  4. Wait for process to finish
+     *  5. Log command, result, and execution time
+     *
+     * @param command CSV-formatted command (e.g., "insert,1,name,email")
+     * @return Output from C++ engine or error message
      */
-    /**
- * Executes a command on the C++ engine via ProcessBuilder.
- * 
- * @param command The command string (e.g., insert, search, delete)
- * @return The output from the C++ engine or error message if failed
- */
     public String executeCommand(String command) {
-        StringBuilder output = new StringBuilder();
+        long startTime = System.currentTimeMillis();
+        String result;
+        Process process = null;
 
         try {
-            // ProcessBuilder: C++ engine ko run karne ke liye
-            // enginePath = path to the compiled C++ binary
-            ProcessBuilder pb = new ProcessBuilder(enginePath);
-
-            // Redirect error stream to standard output
-            // Taaki C++ errors bhi output me dikh sake
-            pb.redirectErrorStream(true);
-
-            // Start the C++ engine process
-            Process process = pb.start();
-
-            // -------------------------
-            // 1️⃣ Write command to engine
-            // -------------------------
-            try (BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(process.getOutputStream()))) {
-                writer.write(command);
-                writer.newLine();
-                writer.flush();
-            }
-
-            // -------------------------
-            // 2️⃣ Read output from engine
-            // -------------------------
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line).append("\n");
-                }
-            }
-
-            // Wait for the process to finish
+            process = processManager.startProcess();
+            streamHandler.writeCommand(process, command);
+            result = streamHandler.readOutput(process);
             process.waitFor();
-
         } catch (Exception e) {
-            // Agar koi exception aaya to return kar do error message
-            return "> Bridge Error: " + e.getMessage();
+            result = "> Bridge Error: " + e.getMessage();
+        } finally {
+            processManager.forceStop(process);
         }
 
-        // Return the output from C++ engine
-        return output.toString();
+        long executionTime = System.currentTimeMillis() - startTime;
+        queryLogger.log(new QueryLog(command, result, executionTime));
+
+        return result;
     }
-};
+
+    /** Returns the QueryLogger instance. */
+    public QueryLogger getQueryLogger() { return queryLogger; }
+
+    /** Returns the ProcessManager instance. */
+    public ProcessManager getProcessManager() { return processManager; }
+}
