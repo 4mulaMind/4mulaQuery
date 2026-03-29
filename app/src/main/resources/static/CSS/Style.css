@@ -1,0 +1,96 @@
+/* =========================================================
+   4mulaQuery UI Stylesheet
+   ---------------------------------------------------------
+   Main stylesheet for the 4mulaQuery web interface.
+
+   Design System:
+   - Theme: Navy + Gold + Cream
+   - Style: Glassmorphism + Developer Dashboard
+   - Fonts: Syne (UI) + DM Mono (Data / Console)
+
+   Sections:
+   1. Root Variables (Color System)
+   2. Global Reset
+   3. Background Effects
+   4. Authentication Pages
+   5. Application Layout
+   6. Header / Hero Section
+   7. Dashboard Components
+   8. Database Panels
+   9. Console UI
+   10. Responsive Design
+
+   Author: Abdul Qadir
+   Project: 4mulaQuery
+========================================================= */
+
+
+/* =========================================================
+   ROOT DESIGN VARIABLES
+   ---------------------------------------------------------
+   Centralized color palette and theme variables used
+   throughout the UI for consistent styling.
+========================================================= */
+
+:root {
+
+  /* ---------- Background Colors ---------- */
+  --bg:      #0a0e1a;
+  --bg2:     #0f1525;
+  --bg3:     #151d32;
+
+  /* ---------- Brand Colors ---------- */
+  --navy:    #001f3f;
+  --gold:    #d4af37;
+  --gold2:   #f0cc5a;
+  --gold3:   #8a6f1e;
+
+  /* ---------- Text Colors ---------- */
+  --cream:   #f5f0e0;
+  --text:    #c8d8f0;
+  --text2:   #6a85a8;
+
+  /* ---------- UI Borders ---------- */
+  --border:  rgba(212,175,55,0.25);
+  --border2: rgba(212,175,55,0.12);
+
+  /* ---------- Glass Effect ---------- */
+  --glass:   rgba(15,21,37,0.85);
+
+  /* ---------- Status Colors ---------- */
+  --success: #2ecc71;
+  --error:   #e74c3c;
+
+  /* ---------- Shadow Preset ---------- */
+  --shadow:  0 20px 60px rgba(0,0,0,0.5);
+}
+
+
+/* =========================================================
+   GLOBAL RESET
+   ---------------------------------------------------------
+   Removes default browser spacing and ensures consistent
+   box model behavior across elements.
+========================================================= */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+
+/* =========================================================
+   BODY BASE STYLING
+   ---------------------------------------------------------
+   Defines the primary typography, background theme,
+   and viewport layout for the application.
+========================================================= */
+
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
