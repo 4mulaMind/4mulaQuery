@@ -1,112 +1,117 @@
 <!-- @format -->
 
-<!-- ===== DASHBOARD SECTION ===== -->
-<div id="sec-dashboard" class="section active">
-  <!-- Section header -->
-  <div class="page-hdr">
-    <h2>Dashboard</h2>
-    <p>Real-time control panel for your 4mulaQuery engine</p>
+<!-- =========================================================
+     4mulaQuery — Main Application HTML
+     ---------------------------------------------------------
+     Author  : Abdul Qadir
+     Version : 1.0
+
+     Description
+     ---------------------------------------------------------
+     This file defines the full frontend UI structure of
+     the 4mulaQuery intelligent database engine.
+
+     Modules Used
+     ---------------------------------------------------------
+     index.html  → UI structure
+     css/style.css → Styling and layout
+     js/auth.js  → Authentication logic
+     js/api.js   → Backend API communication
+     js/app.js   → App initialization and navigation
+
+     Theme
+     ---------------------------------------------------------
+     Navy + Gold luxury tech interface
+========================================================= -->
+
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <!-- Character encoding -->
+  <meta charset="UTF-8"/>
+
+  <!-- Responsive layout for mobile devices -->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+
+  <!-- Page title -->
+  <title>4mulaQuery | Intelligent Database Engine</title>
+
+  <!-- Website favicon -->
+  <link rel="icon" type="image/png" href="/Logo.jpg"/>
+
+  <!-- Google Fonts used in UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="/css/style.css"/>
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     BACKGROUND GRID EFFECT
+     Decorative animated background used across UI
+===================================================== -->
+<div class="grid-bg"></div>
+
+
+<!-- =====================================================
+     LOGIN PAGE
+     -----------------------------------------------------
+     Allows existing users to log into the application.
+     Includes email + password authentication.
+===================================================== -->
+<div id="loginPage" class="auth-wrap">
+
+  <div class="auth-card">
+
+    <!-- Application logo and branding -->
+    <div class="auth-logo">
+      <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
+      <h1>4mula<span>Query</span></h1>
+      <p>// intelligent database engine</p>
+    </div>
+
+    <!-- Login error / success notification -->
+    <div id="loginToast" class="toast error"></div>
+
+    <!-- Page heading -->
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to access your database</div>
+
+    <!-- Email input -->
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com"/>
+    </div>
+
+    <!-- Password input -->
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+
+    <!-- Password recovery link -->
+    <div class="forgot-link">
+      <a href="#" onclick="showPage('forgotPage')">Forgot password?</a>
+    </div>
+
+    <!-- Login button -->
+    <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+
+    <!-- Divider -->
+    <div class="auth-divider">or</div>
+
+    <!-- Signup navigation -->
+    <div class="auth-link">
+      No account? 
+      <a href="#" onclick="showPage('signupPage')">Create one</a>
+    </div>
+
   </div>
 
-  <!-- ===== Dashboard statistics cards ===== -->
-  <div class="stats-row">
-    <!-- Total Records card -->
-    <div class="stat-card">
-      <div class="s-label">Total Records</div>
-      <div class="s-val" id="statTotal">—</div>
-      <div class="s-desc">rows in database</div>
-    </div>
-
-    <!-- Last Operation card -->
-    <div class="stat-card">
-      <div class="s-label">Last Operation</div>
-      <div class="s-val" id="statOp" style="font-size: 1rem; padding-top: 8px">
-        —
-      </div>
-      <div class="s-desc">most recent command</div>
-    </div>
-
-    <!-- Engine Status card -->
-    <div class="stat-card">
-      <div class="s-label">Engine Status</div>
-      <div class="s-live"><span class="dot-live"></span> ONLINE</div>
-      <div class="s-desc">C++ core responding</div>
-    </div>
-  </div>
-
-  <!-- ===== Database Operations Panel ===== -->
-  <div class="panel">
-    <!-- Panel title -->
-    <div class="panel-title">
-      <div class="p-dot"></div>
-      Database Operations
-    </div>
-
-    <!-- Input fields for operations -->
-    <div class="ops-grid">
-      <div class="field">
-        <label>ID *</label
-        ><input type="number" id="opId" placeholder="e.g. 1" />
-      </div>
-      <div class="field">
-        <label>Username</label
-        ><input type="text" id="opName" placeholder="Name" />
-      </div>
-      <div class="field">
-        <label>Email</label
-        ><input type="email" id="opEmail" placeholder="user@email.com" />
-      </div>
-
-      <!-- Action buttons (Insert, Search, Delete) -->
-      <div class="field">
-        <label>&nbsp;</label>
-        <div style="display: flex; gap: 8px">
-          <button class="btn btn-ins" onclick="operate('insert')">＋</button>
-          <button class="btn btn-src" onclick="operate('search')">⌕</button>
-          <button class="btn btn-del" onclick="operate('delete')">✕</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Full width buttons for operations -->
-    <div class="btn-row">
-      <button class="btn btn-ins" onclick="operate('insert')">
-        Insert Record
-      </button>
-      <button class="btn btn-src" onclick="operate('search')">
-        Search by ID
-      </button>
-      <button class="btn btn-del" onclick="operate('delete')">
-        Delete by ID
-      </button>
-      <button class="btn btn-ref" onclick="fetchAll()">↻ Refresh View</button>
-    </div>
-  </div>
-
-  <!-- ===== Output Panel for Database Operations ===== -->
-  <div class="out-panel">
-    <div class="out-hdr">
-      <span
-        ><span
-          class="dot-live"
-          style="display: inline-block; margin-right: 6px"
-        ></span
-        >engine output</span
-      >
-      <button
-        class="btn btn-ref"
-        style="padding: 5px 12px; font-size: 0.75rem"
-        onclick="fetchAll()"
-      >
-        ↻ Load All
-      </button>
-    </div>
-    <div class="load-bar" id="lb1"></div>
-    <div class="out-body" id="outBody">
-      <div class="empty">
-        <div class="empty-icon">◈</div>
-        Engine ready. Run a command above.
-      </div>
-    </div>
-  </div>
 </div>
