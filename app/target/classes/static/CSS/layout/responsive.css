@@ -1,0 +1,44 @@
+/* ===================================================== */
+/* Responsive Design - Mobile Devices                    */
+/* Screen width <= 768px                                 */
+/* ===================================================== */
+
+@media (max-width: 768px) {
+
+    /* -------------------------------- */
+    /* Stats Cards Layout               */
+    /* -------------------------------- */
+
+    .stats-row {
+        grid-template-columns: 1fr; 
+        /* 3 cards → 1 column stack */
+    }
+
+    /* -------------------------------- */
+    /* Operations Grid Layout           */
+    /* -------------------------------- */
+
+    .ops-grid {
+        grid-template-columns: 1fr 1fr; 
+        /* Inputs become 2 columns */
+    }
+
+    /* -------------------------------- */
+    /* Hide Topbar Navigation           */
+    /* -------------------------------- */
+
+    .topbar-nav {
+        display: none;
+        /* Nav buttons hidden on small screens */
+    }
+
+    /* -------------------------------- */
+    /* Header Font Adjustment           */
+    /* -------------------------------- */
+
+    .app-header h1 {
+        font-size: 2rem;
+        /* Smaller heading for mobile */
+    }
+
+}

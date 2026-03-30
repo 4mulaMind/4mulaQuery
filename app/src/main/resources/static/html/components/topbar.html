@@ -1,0 +1,62 @@
+<!-- ===================================================== -->
+<!-- Topbar Component -->
+<!-- Purpose : Main navigation and user control bar -->
+<!-- System  : 4mulaQuery - Intelligent Database Engine -->
+<!-- ===================================================== -->
+
+<div class="topbar">
+
+    <!-- ------------------------------------------------- -->
+    <!-- Left Section : Logo + App Name + Version Badge -->
+    <!-- ------------------------------------------------- -->
+    <div class="topbar-left">
+
+        <!-- Application Logo -->
+        <img class="topbar-logo" src="/Logo.jpg" alt="logo">
+
+        <!-- Application Name -->
+        <span class="topbar-name">4mula<span>Query</span></span>
+
+        <!-- Version Badge -->
+        <span class="topbar-badge">C++ ENGINE v1.0</span>
+
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Center Section : Navigation Buttons -->
+    <!-- Allows switching between app sections -->
+    <!-- ------------------------------------------------- -->
+    <div class="topbar-nav">
+
+        <button class="tnav active" onclick="switchSec('dashboard', this)">
+            Dashboard
+        </button>
+        <button class="tnav" onclick="switchSec('explorer', this)">
+            Data Explorer
+        </button>
+        <button class="tnav" onclick="switchSec('console', this)">
+            Console
+        </button>
+        <button class="tnav" onclick="switchSec('settings', this)">
+            Settings
+        </button>
+
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Right Section : User Info + Logout -->
+    <!-- ------------------------------------------------- -->
+    <div class="topbar-right">
+
+        <!-- User Pill : Avatar + Name -->
+        <div class="user-pill">
+            <div class="user-av" id="userAv">A</div>
+            <span class="user-nm" id="userNm">User</span>
+        </div>
+
+        <!-- Logout Button -->
+        <button class="logout-btn" onclick="doLogout()">⏻ Logout</button>
+
+    </div>
+
+</div>

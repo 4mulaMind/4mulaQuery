@@ -1,99 +1,108 @@
 /**
- * =========================================================
- *    APP MODULE
- *    ---------------------------------------------------------
- *    Handles frontend UI logic, hero typing animation,
- *    and initial application startup behavior.
- * =========================================================
+ * ================================================
+ * 4mulaQuery - Intelligent Database Engine
+ * Author: Abdul Qadir
+ * Module: App Controller
+ * Purpose: App initialization, partial loading
+ * ================================================
  *
  * @format
  */
 
-/* ---------------------------------------------------------
-   Hero Typing Animation Phrases
-   ---------------------------------------------------------
-   Text messages displayed in the animated hero banner
-   on the dashboard header.
---------------------------------------------------------- */
-const phrases = [
-  "Fastest C++ B-Tree Engine",
-  "Spring Boot + Docker Integrated",
-  "Intelligent Query Processing",
-  "AI Powered SQL Optimization",
-  "Real-Time Query Performance Insights",
-  "Machine Learning Driven Database Engine",
-  "Next Generation Query Analyzer",
-  "Smart Database Exploration",
-  "Predictive SQL Execution Engine",
-  "Developed by Abdul Qadir",
-];
+// App load hone par user session check karta hai
+async function loadApp() {
+  // Current user ya saved session load
+  const s = currentUser || getSession();
 
-/* ---------------------------------------------------------
-   Typing Animation State Variables
---------------------------------------------------------- */
-let pIndex = 0; // current phrase index
-let cIndex = 0; // current character index
-let deleting = false;
-let typingTimer = null;
+  // Agar session nahi hai to return
+  if (!s) return;
 
-/* ---------------------------------------------------------
-   Animation Starter
-   ---------------------------------------------------------
-   Resets typing state and begins animation loop.
---------------------------------------------------------- */
-function startTyping() {
-  if (typingTimer) clearTimeout(typingTimer);
+  // Current user set
+  currentUser = s;
 
-  pIndex = 0;
-  cIndex = 0;
-  deleting = false;
+  // Main app UI show
+  document.getElementById("app").style.display = "block";
 
-  typeNext();
+  // User name display
+  document.getElementById("userNm").textContent = currentUser.name;
+
+  // User avatar (first letter)
+  document.getElementById("userAv").textContent =
+    currentUser.name[0].toUpperCase();
+
+  // Settings form auto fill
+  document.getElementById("setName").value = currentUser.name;
+  document.getElementById("setEmail").value = currentUser.email;
+
+  // Typing animation start
+  startTyping();
+
+  // Dashboard data load
+  fetchAll(true);
 }
 
-/* ---------------------------------------------------------
-   Typing Animation Engine
-   ---------------------------------------------------------
-   Simulates typing and deleting text character by
-   character to create a looping typewriter effect.
---------------------------------------------------------- */
-function typeNext() {
-  const el = document.getElementById("dynamic-text");
+// HTML partial files load karta hai
+async function loadPartials() {
+  // Containers aur unki files
+  const containers = {
+    "topbar-container": "partials/topbar.html",
+    "header-container": "partials/header.html",
+    "main-content": "partials/dashboard.html",
+  };
 
-  if (!el) return;
+  // Har container ke liye HTML fetch karo
+  for (const [id, url] of Object.entries(containers)) {
+    const resp = await fetch(url);
+    const html = await resp.text();
 
-  const text = phrases[pIndex];
+    // Container me HTML insert
+    document.getElementById(id).innerHTML = html;
+  }
 
-  el.textContent = deleting
-    ? text.substring(0, cIndex--)
-    : text.substring(0, cIndex++);
+  // Default active section dashboard
+  document.getElementById("sec-dashboard").classList.add("active");
+}
 
-  if (!deleting && cIndex > text.length) {
-    deleting = true;
-    typingTimer = setTimeout(typeNext, 2000);
-  } else if (deleting && cIndex === 0) {
-    deleting = false;
-    pIndex = (pIndex + 1) % phrases.length;
-    typingTimer = setTimeout(typeNext, 500);
-  } else {
-    typingTimer = setTimeout(typeNext, deleting ? 50 : 100);
+// Remaining dashboard sections load karta hai
+async function loadAppWithPartials() {
+  // Main partials load
+  await loadPartials();
+
+  // Extra sections
+  const sections = ["explorer", "console", "settings"];
+
+  for (const sec of sections) {
+    // Section HTML load
+    const resp = await fetch(`partials/${sec}.html`);
+    const html = await resp.text();
+
+    // Dashboard me add
+    document
+      .getElementById("main-content")
+      .insertAdjacentHTML("beforeend", html);
   }
 }
 
-/* ---------------------------------------------------------
-   Application Bootstrap
-   ---------------------------------------------------------
-   Runs on page load and checks if user session exists.
-   If session found → load dashboard
-   Otherwise → redirect to login page.
---------------------------------------------------------- */
-window.onload = () => {
-  const s = getSession(); // from auth.js
+// Page load hone par app initialize
+window.onload = async () => {
+  // Main app layout load
+  const resp = await fetch("partials/app.html");
+  const appHtml = await resp.text();
+
+  document.getElementById("app-container").innerHTML = appHtml;
+
+  // Sab partials load
+  await loadAppWithPartials();
+
+  // Session check
+  const s = getSession();
 
   if (s) {
-    currentUser = s; // global user state
-    loadApp(); // initialize dashboard
+    // Agar session hai to app load
+    currentUser = s;
+    loadApp();
   } else {
-    showPage("loginPage"); // show login screen
+    // Agar login nahi hai to login page show
+    showPage("loginPage");
   }
 };

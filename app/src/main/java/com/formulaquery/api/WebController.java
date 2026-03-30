@@ -52,7 +52,7 @@ public class WebController {
         /* Forwarding to index.html ensures the browser stays at "/" 
            while rendering the static frontend of 4mulaQuery.
         */
-        return "forward:/index.html";
+        return "forward:/html/index.html";
 
     }
 }

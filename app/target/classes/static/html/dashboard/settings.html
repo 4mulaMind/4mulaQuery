@@ -1,0 +1,63 @@
+<!-- ===================================================== -->
+<!-- Settings Section -->
+<!-- Purpose : Manage user account preferences -->
+<!-- System  : 4mulaQuery - Intelligent Database Engine -->
+<!-- ===================================================== -->
+
+<div id="sec-settings" class="section">
+
+    <!-- ------------------------------------------------- -->
+    <!-- Page Header -->
+    <!-- ------------------------------------------------- -->
+    <div class="page-hdr">
+        <h2>Settings</h2>
+        <p>Manage your account preferences</p>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Account Settings Panel -->
+    <!-- Update display name and password -->
+    <!-- Email is displayed but not editable -->
+    <!-- ------------------------------------------------- -->
+    <div class="panel settings-card">
+
+        <!-- Panel Title -->
+        <div class="panel-title">
+            <div class="p-dot"></div>Account
+        </div>
+
+        <!-- Display Name -->
+        <div class="field">
+            <label>Display Name</label>
+            <input type="text" id="setName" placeholder="Your name">
+        </div>
+
+        <!-- Email (readonly) -->
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="setEmail" disabled style="opacity:0.5">
+        </div>
+
+        <!-- New Password -->
+        <div class="field">
+            <label>New Password</label>
+            <input type="password" id="setPass" placeholder="Leave blank to keep current">
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="field">
+            <label>Confirm Password</label>
+            <input type="password" id="setPass2" placeholder="Same as above">
+        </div>
+
+        <!-- Save Changes Button -->
+        <button class="btn-primary" onclick="saveSettings()" style="max-width:200px">
+            Save Changes
+        </button>
+
+        <!-- Toast Message -->
+        <div id="setToast" class="toast" style="margin-top:16px;margin-bottom:0"></div>
+
+    </div>
+
+</div>

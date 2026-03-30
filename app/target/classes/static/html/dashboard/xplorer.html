@@ -1,0 +1,50 @@
+<!-- ===================================================== -->
+<!-- Data Explorer Section -->
+<!-- Purpose : Browse all records in 4mulaQuery database -->
+<!-- System  : 4mulaQuery - Intelligent Database Engine -->
+<!-- ===================================================== -->
+
+<div id="sec-explorer" class="section">
+
+    <!-- ------------------------------------------------- -->
+    <!-- Page Header : Title + Description -->
+    <!-- ------------------------------------------------- -->
+    <div class="page-hdr">
+        <h2>Data Explorer</h2>
+        <p>Browse all records stored in 4mulaQuery database</p>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Records Panel -->
+    <!-- Displays all database records in a scrollable output panel -->
+    <!-- ------------------------------------------------- -->
+    <div class="panel">
+
+        <!-- Panel Title with Refresh Button -->
+        <div class="panel-title">
+            <div class="p-dot"></div>All Records
+            <button class="btn btn-ref" onclick="fetchAllExplorer()" 
+                    style="margin-left:auto;padding:7px 14px;font-size:0.78rem">
+                ↻ Load Data
+            </button>
+        </div>
+
+        <!-- Output Panel for Records -->
+        <div class="out-panel">
+
+            <!-- Loading Bar -->
+            <div class="load-bar" id="lb2"></div>
+
+            <!-- Output Body -->
+            <div class="out-body" id="explorerBody">
+                <div class="empty">
+                    <div class="empty-icon">◈</div>
+                    Click "Load Data" to fetch all records.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

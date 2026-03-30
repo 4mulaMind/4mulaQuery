@@ -1,0 +1,59 @@
+<!-- ===================================================== -->
+<!-- Query Console Section -->
+<!-- Purpose : Run raw commands directly against the C++ engine -->
+<!-- System  : 4mulaQuery - Intelligent Database Engine -->
+<!-- ===================================================== -->
+
+<div id="sec-console" class="section">
+
+    <!-- ------------------------------------------------- -->
+    <!-- Page Header : Title + Description -->
+    <!-- ------------------------------------------------- -->
+    <div class="page-hdr">
+        <h2>Query Console</h2>
+        <p>Run raw commands directly against the C++ engine</p>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Console Input -->
+    <!-- Accepts raw commands, runs on Enter key or Run button -->
+    <!-- ------------------------------------------------- -->
+    <div class="console-input">
+        <span>4mula&gt;</span>
+        <input type="text" id="rawCmd" 
+               placeholder="insert,1,Name,email@test.com  |  search,1  |  delete,1  |  all" 
+               onkeydown="if (event.key === 'Enter') runRaw();">
+        <button class="btn btn-exec" onclick="runRaw()" 
+                style="padding:8px 18px;font-size:0.82rem">
+            ▶ Run
+        </button>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Output Panel -->
+    <!-- Displays console results and logs -->
+    <!-- ------------------------------------------------- -->
+    <div class="out-panel">
+
+        <!-- Panel Header -->
+        <div class="out-hdr">
+            <span>
+                <span class="dot-live" style="display:inline-block;margin-right:6px"></span>
+                console
+            </span>
+        </div>
+
+        <!-- Loading Bar -->
+        <div class="load-bar" id="lb3"></div>
+
+        <!-- Output Body -->
+        <div class="out-body" id="consoleBody">
+            <div class="log">
+                <span class="log-info">4mulaQuery Console v1.0</span>
+                <span class="log-time">Type a command above and press Enter</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>

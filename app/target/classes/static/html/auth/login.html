@@ -1,0 +1,86 @@
+<!-- ===================================================== -->
+<!-- Login Authentication Card -->
+<!-- Purpose : User sign-in interface for 4mulaQuery system -->
+<!-- ===================================================== -->
+
+<div class="auth-card">
+
+    <!-- ------------------------------------------------- -->
+    <!-- Application Logo + Branding -->
+    <!-- ------------------------------------------------- -->
+    <div class="auth-logo">
+        <img src="/Logo.jpg" alt="4mulaQuery Logo">
+
+        <!-- Application Name -->
+        <h1>4mula<span>Query</span></h1>
+
+        <!-- Tagline -->
+        <p>// intelligent database engine</p>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Error / Notification Toast -->
+    <!-- Displays login errors such as invalid credentials -->
+    <!-- ------------------------------------------------- -->
+    <div id="loginToast" class="toast error"></div>
+
+    <!-- Login Heading -->
+    <div class="auth-title">Welcome back</div>
+
+    <!-- Login Description -->
+    <div class="auth-sub">Sign in to access your database</div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Email Input Field -->
+    <!-- ------------------------------------------------- -->
+    <div class="field">
+        <label>Email</label>
+        <input 
+            type="email"
+            id="loginEmail"
+            placeholder="you@example.com">
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Password Input Field -->
+    <!-- Enter key triggers login -->
+    <!-- ------------------------------------------------- -->
+    <div class="field">
+        <label>Password</label>
+        <input 
+            type="password"
+            id="loginPass"
+            placeholder="••••••••"
+            onkeydown="if (event.key === 'Enter') doLogin();">
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Forgot Password Link -->
+    <!-- ------------------------------------------------- -->
+    <div class="forgot-link">
+        <a href="#" onclick="showPage('forgotPage')">
+            Forgot password?
+        </a>
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Login Button -->
+    <!-- ------------------------------------------------- -->
+    <button class="btn-primary" onclick="doLogin()">
+        Sign In →
+    </button>
+
+    <!-- Divider -->
+    <div class="auth-divider">or</div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- Signup Redirect -->
+    <!-- ------------------------------------------------- -->
+    <div class="auth-link">
+        No account?
+        <a href="#" onclick="showPage('signupPage')">
+            Create one
+        </a>
+    </div>
+
+</div>
