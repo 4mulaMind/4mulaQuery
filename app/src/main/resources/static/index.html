@@ -534,6 +534,7 @@ Theme: Navy + Gold Luxury Tech Theme
    ========================================================= */
 
       #app {
+        background: var(--bg);
         display: none;
         position: relative;
         z-index: 10;
@@ -2561,63 +2562,87 @@ function resetPass(){
    doLogout()
    Current user ko logout karta hai aur session clear karta hai
 ------------------------------------------------- */
-function doLogout(){
 
-  // LocalStorage se current session remove karo
+function doLogout() {
+  // -------------------------------------------------------------
+  // Remove the saved user session from LocalStorage
+  // This ensures the user is fully logged out
+  // -------------------------------------------------------------
   localStorage.removeItem('fq_session');
 
-  // Current user variable reset karo
+  // Reset global user variable
   currentUser = null;
 
-  // Main app UI hide karo
+  // Hide the main application interface
   document.getElementById('app').style.display = 'none';
 
-  // Agar typing animation chal rahi ho to stop karo
-  if(typingTimer)
-    clearTimeout(typingTimer);
+  // Stop typing animation if it is currently running
+  if (typingTimer) clearTimeout(typingTimer);
 
-  // User ko login page par redirect karo
-  showPage('loginPage');
+  // -------------------------------------------------------------
+  // Since authentication pages were removed from the DOM earlier,
+  // the easiest way to restore them is to reload the page
+  // -------------------------------------------------------------
+  location.reload();
 }
-
 /* -------------------------------------------------
    loadApp()
    Successful login ke baad main application load karta hai
 ------------------------------------------------- */
-function loadApp(){
+function loadApp() {
 
-  // Current session ya logged-in user check karo
+  // Get current user session from memory or stored session
   const s = currentUser || getSession();
 
-  // Agar session nahi hai to function stop
-  if(!s) return;
+  // If no session exists, stop execution
+  if (!s) return;
 
-  // Current user set karo
+  // Set global current user
   currentUser = s;
 
-  // Sab authentication pages hide karo
-  ['loginPage','signupPage','forgotPage'].forEach(p=>{
-    document.getElementById(p).style.display='none';
+  // -------------------------------------------------------------
+  // Remove all authentication related pages from the DOM
+  // This ensures login / signup screens never reappear
+  // -------------------------------------------------------------
+  const authPages = ['loginPage', 'signupPage', 'forgotPage'];
+
+  authPages.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove(); 
   });
 
-  // Main application UI show karo
-  document.getElementById('app').style.display='block';
+  // -------------------------------------------------------------
+  // Activate the main application interface
+  // -------------------------------------------------------------
+  const app = document.getElementById('app');
 
-  // Navbar / profile me user name show karo
+  // Display main app container
+  app.style.display = 'block';
+
+  // Apply solid background to prevent visual overlap
+  app.style.background = 'var(--bg)'; // Navy blue theme
+
+  // -------------------------------------------------------------
+  // Update UI elements with authenticated user data
+  // -------------------------------------------------------------
   document.getElementById('userNm').textContent = currentUser.name;
 
-  // User avatar me first letter show karo
+  // Set user avatar using first letter of name
   document.getElementById('userAv').textContent =
     currentUser.name[0].toUpperCase();
 
-  // Settings page me user name aur email prefill karo
-  document.getElementById('setName').value  = currentUser.name;
+  // Populate settings form fields
+  document.getElementById('setName').value = currentUser.name;
   document.getElementById('setEmail').value = currentUser.email;
 
-  // Hero typing animation start karo
+  // -------------------------------------------------------------
+  // Initialize UI features
+  // -------------------------------------------------------------
+
+  // Start hero section typing animation
   startTyping();
 
-  // Background me database records fetch karo
+  // Load all database records
   fetchAll(true);
 }
 /* -------------------------------------------------
