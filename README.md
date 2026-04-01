@@ -79,7 +79,9 @@ _C++ Storage Core • Java Spring Boot API • Docker Deployed_
 │   │   ├── QueryLog.java             # Query data model
 │   │   └── CommandType.java          # Command type enum
 │   ├── src/main/resources/static/
-│   │   ├── index.html                # Frontend UI
+│   │   ├── index.html                # Interface of the application
+|   |   ├── style.css                 # Layout styles
+|   |   ├── app.js                    # Core frontend logic controller
 │   │   └── Logo.jpg                  # App logo
 │   └── pom.xml
 │
