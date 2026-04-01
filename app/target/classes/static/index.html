@@ -1,28 +1,120 @@
-<!-- =====================================================
-     4mulaQuery — index.html
-     Author : Abdul Qadir
-     CSS    : style.css
-     JS     : app.js
-===================================================== -->
+<!--
+=====================================================
+  4mulaQuery — index.html
+  Author : Abdul Qadir
+  Role   : Main UI Entry Point
+  Layer  : Frontend Interface
+
+  Description
+  ---------------------------------------------------
+  This file is the main entry point of the 4mulaQuery
+  web application. It provides the entire user
+  interface including authentication, application
+  navigation, and modules for interacting with the
+  backend C++ database engine.
+
+  Architecture Overview
+  ---------------------------------------------------
+  Authentication Layer
+      Login
+      Signup
+      Password Recovery
+
+  Application Layer
+      Dashboard
+      Data Explorer
+      Query Console
+      User Settings
+
+  Backend Integration
+      The UI communicates with the C++ engine through
+      REST API endpoints exposed by the backend server.
+=====================================================
+-->
 <!doctype html>
 <html lang="en">
+  <!-- =====================================================
+     HEAD SECTION
+
+     Contains metadata, fonts, stylesheets and the
+     application title. This section loads all resources
+     required before rendering the UI.
+
+     Resources Loaded:
+     • Google Fonts (Syne + DM Mono)
+     • Main stylesheet (style.css)
+     • Application favicon
+===================================================== -->
 <head>
+  <!-- Character Encoding -->
   <meta charset="UTF-8"/>
+  <meta charset="UTF-8"/>
+  <!-- Responsive Layout Configuration -->
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <!-- Application Title -->
   <title>4mulaQuery | Intelligent Database Engine</title>
+  <!-- Application Icon -->
   <link rel="icon" type="image/png" href="/Logo.jpg"/>
+  <!-- Google Font Imports -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <!-- Global Stylesheet -->
   <link rel="stylesheet" href="/style.css"/>
 </head>
-<body>
+<!-- =====================================================
+     BODY SECTION
 
-<!-- Background grid -->
+     Contains the entire application UI including
+     authentication pages and the main application shell.
+===================================================== -->
+<body>
+<!-- =====================================================
+     GLOBAL BACKGROUND GRID
+
+     Decorative background grid used to give the
+     interface a futuristic database-engine appearance.
+===================================================== -->
 <div class="grid-bg"></div>
+<!-- =====================================================
+     AUTHENTICATION MODULE
+
+     Handles user authentication before granting access
+     to the main application interface.
+
+     Pages included:
+        • Login Page
+        • Signup Page
+        • Password Recovery Page
+===================================================== -->
+
 
 <!-- =====================================================
      LOGIN PAGE
+
+     Entry interface for existing users.
+
+     Features
+     ---------------------------------------------------
+     • Email and password authentication
+     • Instant validation feedback
+     • Navigation to signup and password recovery
+     • Login submission handled by doLogin() in app.js
 ===================================================== -->
 <div id="loginPage" class="auth-wrap">
+  <!-- =====================================================
+     SIGNUP PAGE
+
+     Registration interface for new users.
+
+     Features
+     ---------------------------------------------------
+     • Full name input
+     • Email registration
+     • Password validation
+     • Confirm password verification
+
+     Account creation handled by doSignup() in app.js
+===================================================== -->
+
   <div class="auth-card">
     <div class="auth-logo">
       <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
@@ -43,8 +135,37 @@
 
 <!-- =====================================================
      SIGNUP PAGE
+     User registration interface.
+
+     Features:
+     • Full name input
+     • Email registration
+     • Password confirmation validation
+     • Account creation handler (doSignup)
 ===================================================== -->
 <div id="signupPage" class="auth-wrap">
+  <!-- =====================================================
+     PASSWORD RECOVERY MODULE
+
+     Secure 3-step password reset workflow.
+
+     Step 1
+     ---------------------------------------------------
+     User enters registered email to request OTP.
+
+     Step 2
+     ---------------------------------------------------
+     User enters 4-digit OTP verification code.
+
+     Step 3
+     ---------------------------------------------------
+     User sets a new password.
+
+     JavaScript functions controlling flow:
+        sendOtp()
+        verifyOtp()
+        resetPass()
+===================================================== -->
   <div class="auth-card">
     <div class="auth-logo">
       <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
@@ -65,9 +186,26 @@
 </div>
 
 <!-- =====================================================
-     FORGOT PASSWORD PAGE
+     PASSWORD RECOVERY FLOW
+
+     Step 1:
+     User enters email to request OTP.
+
+     Step 2:
+     User enters 4-digit OTP received via email.
+
+     Step 3:
+     User sets a new password.
+
+     This system ensures secure account recovery.
 ===================================================== -->
 <div id="forgotPage" class="auth-wrap">
+  <!-- =====================================================
+     MAIN APPLICATION CONTAINER
+
+     This container loads after successful authentication.
+     It holds the full application dashboard and modules.
+===================================================== -->
   <div class="auth-card">
     <div class="auth-logo">
       <img src="/Logo.jpg" alt="4mulaQuery Logo"/>
@@ -108,12 +246,44 @@
 </div>
 
 <!-- =====================================================
-     MAIN APPLICATION
+     MAIN APPLICATION CONTAINER
+
+     Loaded after successful authentication.
+
+     Contains:
+     • Top Navigation Bar
+     • Application Header
+     • Core Modules
+          - Dashboard
+          - Data Explorer
+          - Query Console
+          - Settings
 ===================================================== -->
 <div id="app">
 
-  <!-- Topbar -->
+<!-- =====================================================
+     TOP NAVIGATION BAR
+
+     Provides global navigation across all modules.
+
+     Components
+     ---------------------------------------------------
+     • Application Logo
+     • Navigation Tabs
+     • User Profile Indicator
+     • Logout Control
+
+     Navigation handled by switchSec() in app.js
+===================================================== -->
   <div class="topbar">
+    <!-- =====================================================
+     APPLICATION HERO HEADER
+
+     Displays the main branding of the application along
+     with animated typing text describing the engine.
+
+     Typing animation handled by startTyping() in app.js
+===================================================== -->
     <div class="topbar-left">
       <img class="topbar-logo" src="/Logo.jpg" alt="logo"/>
       <span class="topbar-name">4mula<span>Query</span></span>
@@ -134,8 +304,29 @@
     </div>
   </div>
 
-  <!-- Hero Header with typing animation -->
+  <!-- =====================================================
+     APPLICATION HERO HEADER
+
+     Displays:
+     • Engine branding
+     • Animated typing text
+     • Project identity
+
+     This gives the product a SaaS-style landing feel.
+===================================================== -->
   <div class="app-header">
+    <!-- =====================================================
+     MAIN CONTENT AREA
+
+     Contains all dynamic application modules.
+
+     Sections
+     ---------------------------------------------------
+     • Dashboard
+     • Data Explorer
+     • Query Console
+     • User Settings
+===================================================== -->
     <img src="/Logo.jpg" alt="Logo"/>
     <h1>4mula<span>Query</span></h1>
     <div id="dynamic-text"></div>
@@ -143,9 +334,36 @@
 
   <!-- Main content -->
   <div class="main">
+<!-- =====================================================
+     DASHBOARD MODULE
 
-    <!-- DASHBOARD -->
+     The central control panel of the database engine.
+
+     Capabilities
+     ---------------------------------------------------
+     • Insert new records
+     • Search records by ID
+     • Delete records
+     • View engine execution output
+     • Monitor system status
+
+     API operations triggered via operate() in app.js
+===================================================== -->
     <div id="sec-dashboard" class="section active">
+      <!-- =====================================================
+     DATA EXPLORER MODULE
+
+     Provides a visual interface to inspect the complete
+     dataset stored inside the database engine.
+
+     Capabilities
+     ---------------------------------------------------
+     • Fetch entire database
+     • Render records dynamically
+     • Refresh dataset from backend engine
+
+     Data loading handled by fetchAllExplorer()
+===================================================== -->
       <div class="page-hdr"><h2>Dashboard</h2><p>Real-time control panel for your 4mulaQuery engine</p></div>
       <div class="stats-row">
         <div class="stat-card"><div class="s-label">Total Records</div><div class="s-val" id="statTotal">—</div><div class="s-desc">rows in database</div></div>
@@ -183,8 +401,33 @@
       </div>
     </div>
 
-    <!-- DATA EXPLORER -->
+    <!-- =====================================================
+     DATA EXPLORER MODULE
+
+     Purpose:
+     Visual interface to browse all database records.
+
+     Features:
+     • Fetch complete dataset
+     • Display records dynamically
+     • Refresh data from engine
+===================================================== -->
     <div id="sec-explorer" class="section">
+      <!-- =====================================================
+     QUERY CONSOLE MODULE
+
+     Advanced developer interface for executing raw
+     commands directly against the database engine.
+
+     Supported Commands
+     ---------------------------------------------------
+     insert,id,name,email
+     search,id
+     delete,id
+     all
+
+     Command execution handled by runRaw() in app.js
+===================================================== -->
       <div class="page-hdr"><h2>Data Explorer</h2><p>Browse all records stored in 4mulaQuery database</p></div>
       <div class="panel">
         <div class="panel-title"><div class="p-dot"></div>All Records
@@ -197,8 +440,33 @@
       </div>
     </div>
 
-    <!-- CONSOLE -->
+    <!-- =====================================================
+     QUERY CONSOLE MODULE
+
+     Advanced interface for raw command execution.
+
+     Supports commands like:
+     insert,id,name,email
+     search,id
+     delete,id
+     all
+
+     Designed for developers and advanced users.
+===================================================== -->
     <div id="sec-console" class="section">
+      <!-- =====================================================
+     SETTINGS MODULE
+
+     Allows users to update account preferences.
+
+     Options Available
+     ---------------------------------------------------
+     • Change display name
+     • Update account password
+     • View registered email
+
+     Updates processed by saveSettings() in app.js
+===================================================== -->
       <div class="page-hdr"><h2>Query Console</h2><p>Run raw commands directly against the C++ engine</p></div>
       <div class="console-input">
         <span>4mula&gt;</span>
@@ -214,7 +482,16 @@
       </div>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- =====================================================
+     USER SETTINGS MODULE
+
+     Allows user to update account preferences.
+
+     Options:
+     • Change display name
+     • Update password
+     • View registered email
+===================================================== -->
     <div id="sec-settings" class="section">
       <div class="page-hdr"><h2>Settings</h2><p>Manage your account preferences</p></div>
       <div class="panel settings-card">
@@ -230,7 +507,16 @@
 
   </div><!-- end .main -->
 </div><!-- end #app -->
+<!-- =====================================================
+     APPLICATION SCRIPT
 
+     app.js controls:
+
+     • Authentication logic
+     • Navigation between sections
+     • API communication with backend engine
+     • Dynamic UI updates
+===================================================== -->
 <script src="/app.js"></script>
 </body>
 </html>
