@@ -105,15 +105,16 @@ _C++ Storage Core • Java Spring Boot API • Docker Deployed_
 
 ## Tech Stack
 
-| Layer            | Technology                | Purpose                          |
-| ---------------- | ------------------------- | -------------------------------- |
-| Storage Engine   | C++ 17                    | Binary file I/O, CRUD operations |
-| API Layer        | Java 17 + Spring Boot 3.2 | REST endpoints, process bridge   |
-| Build Tool       | Maven                     | Java dependency management       |
-| Frontend         | HTML + CSS + JavaScript   | Database UI                      |
-| Containerization | Docker + Docker Compose   | Deployment                       |
-| Hosting          | Render.com                | Live cloud deployment            |
-| ML (Upcoming)    | Python + Scikit-learn     | Query optimization               |
+| Layer            | Technology                   | Purpose                          |
+| ---------------- | -----------------------------| -------------------------------- |
+| Storage Engine   | C++ 17                       | Binary file I/O, CRUD operations |
+| API Layer        | Java 17 + Spring Boot 3.2    | REST endpoints, process bridge   |
+| Build Tool       | Maven                        | Java dependency management       |
+| Frontend         | HTML + CSS + JavaScript      | Database UI                      |
+| Containerization | Docker + Docker Compose      | Deployment                       |
+| Hosting          | Render.com                   | Live cloud deployment            |
+| ML (Upcoming)    | Python + Scikit-learn        | Query optimization               |
+| ML Analytics     | Python + Pandas + Matplotlib | Query pattern analysis           |
 
 ---
 
@@ -202,6 +203,17 @@ QueryLog           → Data model for one query execution
 QueryLogger        → Saves query logs to CSV for ML
 CommandType        → Enum: INSERT | SEARCH | DELETE | ALL
 ```
+----
+
+## Analytics Results
+
+| Query Distribution | Execution Time |
+|---|---|
+| ![](assets/analytics/1_distribution.png) | ![](assets/analytics/2_exec_time.png) |
+
+| Success Rate | Timeline |
+|---|---|
+| ![](assets/analytics/3_success.png) | ![](assets/analytics/4_timeline.png) |
 
 ---
 
@@ -247,6 +259,7 @@ Dashboard Analytics     → Real-time performance graphs
 - [x] Web UI with auth system
 - [x] Query logging for ML
 - [x] OOP refactor (Single Responsibility)
+- [x] Python query analytics (analyze.py)
 - [ ] Python ML Query Optimizer
 - [ ] B+ Tree indexing
 - [ ] SQL Parser (Lexer + AST)
