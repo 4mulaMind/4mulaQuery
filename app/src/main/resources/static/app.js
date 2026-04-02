@@ -385,4 +385,17 @@ window.onload = () => {
     currentUser = s;
     loadApp();
   } else showPage("loginPage");
+  
+  /* _____Analatics_____*/
+  function switchSec(name, el) {
+    document
+      .querySelectorAll(".section")
+      .forEach((s) => s.classList.remove("active"));
+    document
+      .querySelectorAll(".tnav")
+      .forEach((n) => n.classList.remove("active"));
+    document.getElementById("sec-" + name).classList.add("active");
+    el.classList.add("active");
+    if (name === "analytics") loadAnalytics(); // ← yeh add karo
+  }
 };
