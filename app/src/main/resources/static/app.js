@@ -386,7 +386,7 @@ window.onload = () => {
     loadApp();
   } else showPage("loginPage");
   
-  /* _____Analatics_____*/
+  /* ── Analytics ── */
   function switchSec(name, el) {
     document
       .querySelectorAll(".section")

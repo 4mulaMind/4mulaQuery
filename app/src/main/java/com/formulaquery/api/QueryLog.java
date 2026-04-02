@@ -1,323 +1,81 @@
 package com.formulaquery.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
- * ========================================================================
- * 4mulaQuery — REST API Controller
- * ========================================================================
- *
- * This controller exposes HTTP endpoints for interacting with the
- * 4mulaQuery database engine. It acts as the public interface between
- * client applications (browser / frontend UI) and the backend
- * EngineService that communicates with the C++ database core.
- *
- * ------------------------------------------------------------------------
- * ARCHITECTURE ROLE
- * ------------------------------------------------------------------------
- * Browser / Client
- *        │
- *        ▼
- * ApiController (this class)
- *        │
- *        ▼
- * EngineService
- *        │
- *        ▼
- * ProcessManager → C++ Database Engine
- *
- * The controller is responsible for:
- *
- * 1. Accepting HTTP requests
- * 2. Extracting query parameters
- * 3. Formatting commands for the database engine
- * 4. Returning execution results to the client
- *
- * ------------------------------------------------------------------------
- * BASE URL
- * ------------------------------------------------------------------------
- * /api
- *
+ * QueryLog — Represents a single query execution record.
+ * 
+ * Responsibilities:
+ * 1. Holds query details: command, type, result, execution time, timestamp, success.
+ * 2. Converts query data into CSV format for logging.
+ * 3. Provides utility getters for analytics or ML optimization.
+ * 
+ * CSV Format:
+ * timestamp,type,executionTimeMs,success,command
+ * 
  * Example:
- * http://localhost:8080/api/all
- *
- * ------------------------------------------------------------------------
- * AVAILABLE ENDPOINTS
- * ------------------------------------------------------------------------
- *
- * GET /api/insert
- *      Inserts a new record into the database.
- *
- * GET /api/all
- *      Returns all records currently stored.
- *
- * GET /api/search
- *      Searches for a record by ID.
- *
- * GET /api/delete
- *      Deletes a record by ID.
- *
- * GET /api/logs
- *      Returns query analytics data used by the dashboard.
- *
- * ------------------------------------------------------------------------
- * DESIGN PRINCIPLE
- * ------------------------------------------------------------------------
- * This controller follows the Single Responsibility Principle:
- *
- * ApiController → handles HTTP layer only
- * EngineService → handles execution logic
- *
- * The controller does NOT interact with the database engine directly.
+ * 2026-03-28 22:15:01,INSERT,45,true,"insert,1,name,email"
  */
-@RestController
-@RequestMapping("/api")
-public class ApiController {
+public class QueryLog {
+
+    private final String rawCommand;
+    private final CommandType type;
+    private final String result;
+    private final long executionTimeMs;
+    private final String timestamp;
+    private final boolean success;
 
     /**
-     * EngineService dependency injection.
+     * Constructs a QueryLog object after query execution.
+     * Determines success based on result content.
      *
-     * Spring automatically provides the EngineService instance
-     * which is responsible for communicating with the C++ engine
-     * through process management and stream I/O.
+     * @param rawCommand Original CSV command string executed
+     * @param result Output from the engine
+     * @param executionTimeMs Execution time in milliseconds
      */
-    @Autowired
-    private EngineService engineService;
-
-
-    /**
-     * --------------------------------------------------------------------
-     * INSERT RECORD ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/insert?id=1&name=Abdul&email=test@test.com
-     *
-     * Description:
-     *      Inserts a new record into the database.
-     *
-     * Request Parameters:
-     *      id    → unique integer identifier
-     *      name  → username string
-     *      email → email address
-     *
-     * Engine Command Format:
-     *      insert,id,name,email
-     *
-     * Example Command Sent to Engine:
-     *      insert,1,Abdul,test@test.com
-     *
-     * Returns:
-     *      Raw response returned by the C++ database engine.
-     */
-    @GetMapping("/insert")
-    public String insertData(
-            @RequestParam int id,
-            @RequestParam String name,
-            @RequestParam String email) {
-
-        return engineService.executeCommand(
-            String.format("insert,%d,%s,%s", id, name, email));
+    public QueryLog(String rawCommand, String result, long executionTimeMs) {
+        this.rawCommand      = rawCommand;
+        this.type            = CommandType.from(rawCommand);
+        this.result          = result;
+        this.executionTimeMs = executionTimeMs;
+        this.timestamp       = LocalDateTime.now()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.success         = !result.contains("Error") && !result.contains("Bridge Error");
     }
 
+    // ── Getters ──────────────────────────────────────────────
+    public String getRawCommand() { return rawCommand; }
+    public CommandType getType() { return type; }
+    public String getResult() { return result; }
+    public long getExecutionTimeMs() { return executionTimeMs; }
+    public String getTimestamp() { return timestamp; }
+    public boolean isSuccess() { return success; }
 
     /**
-     * --------------------------------------------------------------------
-     * FETCH ALL RECORDS ENDPOINT
-     * --------------------------------------------------------------------
+     * Converts this log to CSV format for file storage.
+     * Replaces any double quotes in command to single quotes.
      *
-     * Endpoint:
-     *      GET /api/all
-     *
-     * Description:
-     *      Retrieves all records currently stored in the database.
-     *
-     * Engine Command:
-     *      all
-     *
-     * Returns:
-     *      Raw list of records formatted by the C++ engine.
+     * @return CSV-formatted string
      */
-    @GetMapping("/all")
-    public String getAllData() {
-        return engineService.executeCommand("all");
+    public String toCsv() {
+        return String.format("%s,%s,%d,%s,\"%s\"",
+            timestamp,
+            type.name(),
+            executionTimeMs,
+            success,
+            rawCommand.replace("\"", "'")
+        );
     }
 
-
     /**
-     * --------------------------------------------------------------------
-     * SEARCH RECORD ENDPOINT
-     * --------------------------------------------------------------------
+     * Returns a concise string representation of the log.
      *
-     * Endpoint:
-     *      GET /api/search?id=1
-     *
-     * Description:
-     *      Searches for a record using its unique ID.
-     *
-     * Request Parameters:
-     *      id → record identifier
-     *
-     * Engine Command Format:
-     *      search,id
-     *
-     * Example:
-     *      search,1
-     *
-     * Returns:
-     *      Record details if found, otherwise an error/empty response.
+     * @return String with timestamp, command type, execution time, and success
      */
-    @GetMapping("/search")
-    public String search(@RequestParam int id) {
-        return engineService.executeCommand("search," + id);
-    }
-
-
-    /**
-     * --------------------------------------------------------------------
-     * DELETE RECORD ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/delete?id=1
-     *
-     * Description:
-     *      Deletes a record from the database by ID.
-     *
-     * Request Parameters:
-     *      id → record identifier
-     *
-     * Engine Command Format:
-     *      delete,id
-     *
-     * Example:
-     *      delete,1
-     *
-     * Returns:
-     *      Execution result from the database engine.
-     */
-    @GetMapping("/delete")
-    public String deleteData(@RequestParam int id) {
-        return engineService.executeCommand("delete," + id);
-    }
-
-
-    /**
-     * --------------------------------------------------------------------
-     * QUERY ANALYTICS ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/logs
-     *
-     * Description:
-     *      Provides analytics data about executed queries.
-     *      This endpoint is used by the Analytics Dashboard
-     *      to display performance insights.
-     *
-     * Data Provided:
-     *
-     * 1. totalQueries
-     *      Total number of queries executed in the session.
-     *
-     * 2. successRate
-     *      Percentage of successful queries.
-     *
-     * 3. avgExecTime
-     *      Average execution time in milliseconds.
-     *
-     * 4. typeCounts
-     *      Count of each query type:
-     *          INSERT
-     *          SEARCH
-     *          DELETE
-     *          ALL
-     *
-     * 5. recentLogs
-     *      Last 20 executed queries used for timeline graphs.
-     *
-     * Response Format:
-     *
-     * {
-     *   totalQueries: 25,
-     *   successRate: 96.0,
-     *   avgExecTime: 213.4,
-     *   typeCounts: { INSERT:10, SEARCH:8, DELETE:4, ALL:3 },
-     *   recentLogs: [...]
-     * }
-     *
-     * Returns:
-     *      JSON response containing aggregated query statistics.
-     */
-    @GetMapping("/logs")
-    public Map<String, Object> getLogs() {
-
-        // Retrieve in-memory query logs from the QueryLogger component
-        List<QueryLog> logs = engineService.getQueryLogger().getSessionLogs();
-
-        // Map to store count of each query type
-        Map<String, Integer> typeCounts = new HashMap<>();
-        typeCounts.put("INSERT", 0);
-        typeCounts.put("SEARCH", 0);
-        typeCounts.put("DELETE", 0);
-        typeCounts.put("ALL",    0);
-
-        long totalTime  = 0;      // Total execution time of all queries
-        int  successful = 0;      // Number of successful queries
-
-        // Iterate through logs and compute statistics
-        for (QueryLog log : logs) {
-            String type = log.getType().toString();
-
-            typeCounts.put(type, typeCounts.getOrDefault(type, 0) + 1);
-
-            totalTime += log.getExecutionTimeMs();
-
-            if (log.isSuccess()) successful++;
-        }
-
-        // Construct JSON response
-        Map<String, Object> response = new HashMap<>();
-
-        response.put("totalQueries", logs.size());
-
-        response.put("successRate",
-                logs.isEmpty() ? 0 :
-                (successful * 100.0 / logs.size()));
-
-        response.put("avgExecTime",
-                logs.isEmpty() ? 0 :
-                (totalTime * 1.0 / logs.size()));
-
-        response.put("typeCounts", typeCounts);
-
-        // Extract last 20 logs for timeline visualization
-        List<QueryLog> recent =
-                logs.size() > 20
-                ? logs.subList(logs.size() - 20, logs.size())
-                : logs;
-
-        // Convert logs into simplified JSON objects
-        response.put("recentLogs", recent.stream().map(l -> {
-
-            Map<String, Object> m = new HashMap<>();
-
-            m.put("type",    l.getType().toString());
-            m.put("ms",      l.getExecutionTimeMs());
-            m.put("success", l.isSuccess());
-
-            return m;
-
-        }).toList());
-
-        return response;
+    @Override
+    public String toString() {
+        return String.format("[%s] %s | %dms | success=%s",
+            timestamp, type.name(), executionTimeMs, success);
     }
 }
