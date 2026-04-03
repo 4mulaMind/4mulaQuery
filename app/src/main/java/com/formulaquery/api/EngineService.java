@@ -1,4 +1,5 @@
 package com.formulaquery.api;
+import org.springframework.stereotype.Service;
 
 /**
  * EngineService — Main orchestrator for 4mulaQuery engine.
@@ -14,6 +15,7 @@ package com.formulaquery.api;
  *  • Composition          — uses injected components
  *  • Encapsulation        — internal details are hidden
  */
+@Service
 public class EngineService {
 
     private final ProcessManager processManager;
