@@ -6,117 +6,44 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * ========================================================================
- * 4mulaQuery — REST API Controller
- * ========================================================================
+ * ApiController
  *
- * This controller exposes HTTP endpoints for interacting with the
- * 4mulaQuery database engine. It acts as the public interface between
- * client applications (browser / frontend UI) and the backend
- * EngineService that communicates with the C++ database core.
+ * Ye class 4mulaQuery ke saare REST APIs handle karti hai.
+ * Frontend se jo bhi request aati hai wo yahin se backend engine tak jaati hai.
  *
- * ------------------------------------------------------------------------
- * ARCHITECTURE ROLE
- * ------------------------------------------------------------------------
- * Browser / Client
- *        │
- *        ▼
- * ApiController (this class)
- *        │
- *        ▼
- * EngineService
- *        │
- *        ▼
- * ProcessManager → C++ Database Engine
+ * Main responsibilities:
+ * 1. Database commands ko EngineService ko forward karna
+ * 2. Query analytics provide karna
+ * 3. User authentication handle karna
  *
- * The controller is responsible for:
- *
- * 1. Accepting HTTP requests
- * 2. Extracting query parameters
- * 3. Formatting commands for the database engine
- * 4. Returning execution results to the client
- *
- * ------------------------------------------------------------------------
- * BASE URL
- * ------------------------------------------------------------------------
- * /api
- *
- * Example:
- * http://localhost:8080/api/all
- *
- * ------------------------------------------------------------------------
- * AVAILABLE ENDPOINTS
- * ------------------------------------------------------------------------
- *
- * GET /api/insert
- *      Inserts a new record into the database.
- *
- * GET /api/all
- *      Returns all records currently stored.
- *
- * GET /api/search
- *      Searches for a record by ID.
- *
- * GET /api/delete
- *      Deletes a record by ID.
- *
- * GET /api/logs
- *      Returns query analytics data used by the dashboard.
- *
- * ------------------------------------------------------------------------
- * DESIGN PRINCIPLE
- * ------------------------------------------------------------------------
- * This controller follows the Single Responsibility Principle:
- *
- * ApiController → handles HTTP layer only
- * EngineService → handles execution logic
- *
- * The controller does NOT interact with the database engine directly.
+ * Base URL: /api
  */
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
-    /**
-     * EngineService dependency injection.
-     *
-     * Spring automatically provides the EngineService instance
-     * which is responsible for communicating with the C++ engine
-     * through process management and stream I/O.
-     */
+    /** Core database engine jo commands execute karta hai */
     @Autowired
     private EngineService engineService;
 
+    /** User storage component (users.json file manage karta hai) */
+    @Autowired
+    private UserStore userStore;
+
+    // ───────────────── DATABASE ENDPOINTS ─────────────────
 
     /**
-     * --------------------------------------------------------------------
-     * INSERT RECORD ENDPOINT
-     * --------------------------------------------------------------------
+     * Insert record into database engine
      *
-     * Endpoint:
-     *      GET /api/insert?id=1&name=Abdul&email=test@test.com
-     *
-     * Description:
-     *      Inserts a new record into the database.
-     *
-     * Request Parameters:
-     *      id    → unique integer identifier
-     *      name  → username string
-     *      email → email address
-     *
-     * Engine Command Format:
-     *      insert,id,name,email
-     *
-     * Example Command Sent to Engine:
-     *      insert,1,Abdul,test@test.com
-     *
-     * Returns:
-     *      Raw response returned by the C++ database engine.
+     * Example:
+     * /api/insert?id=1&name=John&email=john@mail.com
      */
     @GetMapping("/insert")
     public String insertData(
@@ -128,196 +55,249 @@ public class ApiController {
             String.format("insert,%d,%s,%s", id, name, email));
     }
 
-
     /**
-     * --------------------------------------------------------------------
-     * FETCH ALL RECORDS ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/all
-     *
-     * Description:
-     *      Retrieves all records currently stored in the database.
-     *
-     * Engine Command:
-     *      all
-     *
-     * Returns:
-     *      Raw list of records formatted by the C++ engine.
+     * Get all records stored in engine
      */
     @GetMapping("/all")
     public String getAllData() {
         return engineService.executeCommand("all");
     }
 
-
     /**
-     * --------------------------------------------------------------------
-     * SEARCH RECORD ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/search?id=1
-     *
-     * Description:
-     *      Searches for a record using its unique ID.
-     *
-     * Request Parameters:
-     *      id → record identifier
-     *
-     * Engine Command Format:
-     *      search,id
-     *
-     * Example:
-     *      search,1
-     *
-     * Returns:
-     *      Record details if found, otherwise an error/empty response.
+     * Search record by ID
      */
     @GetMapping("/search")
     public String search(@RequestParam int id) {
         return engineService.executeCommand("search," + id);
     }
 
-
     /**
-     * --------------------------------------------------------------------
-     * DELETE RECORD ENDPOINT
-     * --------------------------------------------------------------------
-     *
-     * Endpoint:
-     *      GET /api/delete?id=1
-     *
-     * Description:
-     *      Deletes a record from the database by ID.
-     *
-     * Request Parameters:
-     *      id → record identifier
-     *
-     * Engine Command Format:
-     *      delete,id
-     *
-     * Example:
-     *      delete,1
-     *
-     * Returns:
-     *      Execution result from the database engine.
+     * Delete record by ID
      */
     @GetMapping("/delete")
     public String deleteData(@RequestParam int id) {
         return engineService.executeCommand("delete," + id);
     }
 
+    // ───────────────── ANALYTICS ENDPOINT ─────────────────
 
     /**
-     * --------------------------------------------------------------------
-     * QUERY ANALYTICS ENDPOINT
-     * --------------------------------------------------------------------
+     * Query analytics return karta hai
      *
-     * Endpoint:
-     *      GET /api/logs
-     *
-     * Description:
-     *      Provides analytics data about executed queries.
-     *      This endpoint is used by the Analytics Dashboard
-     *      to display performance insights.
-     *
-     * Data Provided:
-     *
-     * 1. totalQueries
-     *      Total number of queries executed in the session.
-     *
-     * 2. successRate
-     *      Percentage of successful queries.
-     *
-     * 3. avgExecTime
-     *      Average execution time in milliseconds.
-     *
-     * 4. typeCounts
-     *      Count of each query type:
-     *          INSERT
-     *          SEARCH
-     *          DELETE
-     *          ALL
-     *
-     * 5. recentLogs
-     *      Last 20 executed queries used for timeline graphs.
-     *
-     * Response Format:
-     *
-     * {
-     *   totalQueries: 25,
-     *   successRate: 96.0,
-     *   avgExecTime: 213.4,
-     *   typeCounts: { INSERT:10, SEARCH:8, DELETE:4, ALL:3 },
-     *   recentLogs: [...]
-     * }
-     *
-     * Returns:
-     *      JSON response containing aggregated query statistics.
+     * Response me milega:
+     * - totalQueries
+     * - successRate
+     * - avgExecTime
+     * - query type counts
+     * - recent query logs
      */
     @GetMapping("/logs")
     public Map<String, Object> getLogs() {
 
-        // Retrieve in-memory query logs from the QueryLogger component
+        // Engine ke query logs fetch karo
         List<QueryLog> logs = engineService.getQueryLogger().getSessionLogs();
 
-        // Map to store count of each query type
+        // Query types ka count store karne ke liye map
         Map<String, Integer> typeCounts = new HashMap<>();
         typeCounts.put("INSERT", 0);
         typeCounts.put("SEARCH", 0);
         typeCounts.put("DELETE", 0);
-        typeCounts.put("ALL",    0);
+        typeCounts.put("ALL", 0);
 
-        long totalTime  = 0;      // Total execution time of all queries
-        int  successful = 0;      // Number of successful queries
+        long totalTime = 0;
+        int successful = 0;
 
-        // Iterate through logs and compute statistics
+        // Logs iterate karke analytics calculate karo
         for (QueryLog log : logs) {
             String type = log.getType().toString();
 
-            typeCounts.put(type, typeCounts.getOrDefault(type, 0) + 1);
+            typeCounts.put(type,
+                    typeCounts.getOrDefault(type, 0) + 1);
 
             totalTime += log.getExecutionTimeMs();
 
-            if (log.isSuccess()) successful++;
+            if (log.isSuccess())
+                successful++;
         }
 
-        // Construct JSON response
         Map<String, Object> response = new HashMap<>();
 
+        // Total queries executed
         response.put("totalQueries", logs.size());
 
+        // Success percentage
         response.put("successRate",
                 logs.isEmpty() ? 0 :
                 (successful * 100.0 / logs.size()));
 
+        // Average execution time
         response.put("avgExecTime",
                 logs.isEmpty() ? 0 :
                 (totalTime * 1.0 / logs.size()));
 
         response.put("typeCounts", typeCounts);
 
-        // Extract last 20 logs for timeline visualization
-        List<QueryLog> recent =
-                logs.size() > 20
+        // Sirf last 20 logs frontend ko bhejo
+        List<QueryLog> recent = logs.size() > 20
                 ? logs.subList(logs.size() - 20, logs.size())
                 : logs;
 
-        // Convert logs into simplified JSON objects
-        response.put("recentLogs", recent.stream().map(l -> {
+        // Lightweight response banane ke liye mapping
+        response.put("recentLogs",
+                recent.stream().map(l -> {
 
-            Map<String, Object> m = new HashMap<>();
+                    Map<String, Object> m = new HashMap<>();
 
-            m.put("type",    l.getType().toString());
-            m.put("ms",      l.getExecutionTimeMs());
-            m.put("success", l.isSuccess());
+                    m.put("type", l.getType().toString());
+                    m.put("ms", l.getExecutionTimeMs());
+                    m.put("success", l.isSuccess());
 
-            return m;
+                    return m;
 
-        }).toList());
+                }).toList());
 
         return response;
+    }
+
+    // ───────────────── AUTH ENDPOINTS ─────────────────
+
+    /**
+     * User Registration API
+     *
+     * POST /api/auth/register
+     *
+     * Body:
+     * {
+     *   "name": "...",
+     *   "email": "...",
+     *   "password": "..."
+     * }
+     */
+    @PostMapping("/auth/register")
+    public Map<String, Object> register(@RequestBody Map<String, String> body) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        String name = body.get("name");
+        String email = body.get("email");
+        String password = body.get("password");
+
+        // Validate input fields
+        if (name == null || email == null || password == null) {
+            res.put("success", false);
+            res.put("message", "All fields required");
+            return res;
+        }
+
+        // Check if email already exists
+        if (userStore.exists(email)) {
+            res.put("success", false);
+            res.put("message", "Email already registered");
+            return res;
+        }
+
+        // Save new user
+        userStore.saveUser(email, name, password);
+
+        res.put("success", true);
+        res.put("name", name);
+        res.put("email", email);
+        res.put("message", "Account created!");
+
+        return res;
+    }
+
+    /**
+     * User Login API
+     *
+     * POST /api/auth/login
+     *
+     * Body:
+     * {
+     *   "email": "...",
+     *   "password": "..."
+     * }
+     */
+    @PostMapping("/auth/login")
+    public Map<String, Object> login(@RequestBody Map<String, String> body) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        String email = body.get("email");
+        String password = body.get("password");
+
+        if (email == null || password == null) {
+            res.put("success", false);
+            res.put("message", "All fields required");
+            return res;
+        }
+
+        // Find user
+        Map<String, String> user = userStore.findByEmail(email);
+
+        if (user == null) {
+            res.put("success", false);
+            res.put("message", "Account not found. Sign up first.");
+            return res;
+        }
+
+        // Password check
+        if (!user.get("password").equals(password)) {
+            res.put("success", false);
+            res.put("message", "Incorrect password.");
+            return res;
+        }
+
+        res.put("success", true);
+        res.put("name", user.get("name"));
+        res.put("email", email);
+
+        return res;
+    }
+
+    /**
+     * User profile update API
+     *
+     * POST /api/auth/update
+     *
+     * Body:
+     * {
+     *   "email": "...",
+     *   "name": "...",
+     *   "password": "optional"
+     * }
+     */
+    @PostMapping("/auth/update")
+    public Map<String, Object> update(@RequestBody Map<String, String> body) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        String email = body.get("email");
+        String name = body.get("name");
+        String password = body.get("password");
+
+        // Validation
+        if (email == null || name == null) {
+            res.put("success", false);
+            res.put("message", "Name and email required");
+            return res;
+        }
+
+        // User exist check
+        if (!userStore.exists(email)) {
+            res.put("success", false);
+            res.put("message", "User not found");
+            return res;
+        }
+
+        // Update user
+        userStore.updateUser(email, name, password);
+
+        res.put("success", true);
+        res.put("name", name);
+        res.put("email", email);
+        res.put("message", "Updated successfully!");
+
+        return res;
     }
 }
