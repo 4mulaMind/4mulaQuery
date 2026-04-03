@@ -399,3 +399,61 @@ window.onload = () => {
     if (name === "analytics") loadAnalytics(); // ← yeh add karo
   }
 };
+
+// ── ANALYTICS ────────────────────────────────────────
+let chartDist = null, chartTime = null, chartTimeline = null;
+
+async function loadAnalytics() {
+  try {
+    const res  = await fetch('/api/logs');
+    const data = await res.json();
+
+    document.getElementById('an-total').textContent   = data.totalQueries;
+    document.getElementById('an-avg').textContent     = data.avgExecTime.toFixed(1) + 'ms';
+    document.getElementById('an-success').textContent = data.successRate.toFixed(1) + '%';
+
+    const types  = Object.keys(data.typeCounts);
+    const counts = Object.values(data.typeCounts);
+    const COLORS = ['#d4af37','#5ddf96','#ff8c7f','#6a9fd8'];
+
+    Chart.defaults.color       = '#6a85a8';
+    Chart.defaults.borderColor = 'rgba(212,175,55,0.1)';
+
+    // 1. Distribution
+    if (chartDist) chartDist.destroy();
+    chartDist = new Chart(document.getElementById('chartDist'), {
+      type: 'bar',
+      data: { labels: types, datasets: [{ data: counts, backgroundColor: COLORS, borderRadius: 8, borderSkipped: false }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(212,175,55,0.05)' } }, y: { grid: { color: 'rgba(212,175,55,0.05)' }, ticks: { stepSize: 1 } } } }
+    });
+
+    // 2. Avg Exec Time
+    const avgTimes = types.map(t => {
+      const matching = (data.recentLogs || []).filter(l => l.type === t);
+      if (!matching.length) return 0;
+      return (matching.reduce((a, b) => a + b.ms, 0) / matching.length).toFixed(1);
+    });
+    if (chartTime) chartTime.destroy();
+    chartTime = new Chart(document.getElementById('chartTime'), {
+      type: 'bar',
+      data: { labels: types, datasets: [{ data: avgTimes, backgroundColor: COLORS, borderRadius: 8, borderSkipped: false }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(212,175,55,0.05)' } }, y: { grid: { color: 'rgba(212,175,55,0.05)' } } } }
+    });
+
+    // 3. Timeline
+    const recent   = data.recentLogs || [];
+    const ptColors = recent.map(l => l.success ? '#2ecc71' : '#e74c3c');
+    if (chartTimeline) chartTimeline.destroy();
+    chartTimeline = new Chart(document.getElementById('chartTimeline'), {
+      type: 'line',
+      data: {
+        labels: recent.map((_, i) => i + 1),
+        datasets: [{ label: 'Exec Time (ms)', data: recent.map(l => l.ms), borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.08)', pointBackgroundColor: ptColors, pointRadius: 6, tension: 0.3, fill: true }]
+      },
+      options: { plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(212,175,55,0.05)' }, title: { display: true, text: 'Query #', color: '#6a85a8' } }, y: { grid: { color: 'rgba(212,175,55,0.05)' }, title: { display: true, text: 'ms', color: '#6a85a8' } } } }
+    });
+
+  } catch(e) {
+    console.error('Analytics error:', e);
+  }
+}
