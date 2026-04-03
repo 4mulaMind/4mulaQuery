@@ -1,75 +1,62 @@
 /*
 ============================================================
-4mulaQuery - Global Constants & Data Structures
-============================================================
-
-File Location: 
-/core/common.h
-
-Purpose:
-This header defines the core memory layout and data schemas 
-used across the database engine. It ensures consistent 
-byte-alignment for disk I/O operations.
-
-Features:
-• Fixed-size Memory Allocation
-• Binary Row Serialization Schema
-• Page Size Optimization (4KB Standard)
-
+4mulaQuery — common.h (B+ Tree version)
 ============================================================
 */
-
 #ifndef COMMON_H
 #define COMMON_H
 
 #include <stdint.h>
 
-/* ====================================================
-   DATABASE MEMORY CONSTANTS
-   (Defined for fixed-length record storage)
-   ==================================================== */
-
-/**
- * USERNAME_SIZE: Maximum characters for the user's name.
- * Default: 32 Bytes
- */
+/* ── ROW SCHEMA ─────────────────────────────────────── */
 const uint32_t USERNAME_SIZE = 32;
+const uint32_t EMAIL_SIZE    = 255;
+const uint32_t PAGE_SIZE     = 4096;
+const uint32_t INVALID_PAGE  = 0xFFFFFFFF;
+const uint32_t TABLE_MAX_PAGES = 400;
 
-/**
- * EMAIL_SIZE: Maximum characters for the email address.
- * Default: 255 Bytes
- */
-const uint32_t EMAIL_SIZE = 255;
-
-/**
- * PAGE_SIZE: Standard OS disk page size (4KB).
- * Optimized for efficient Pager I/O operations.
- */
-const uint32_t PAGE_SIZE = 4096;
-
-
-/* ====================================================
-   CORE DATA STRUCTURES
-   ==================================================== */
-
-/**
- * STRUCT: Row
- * ----------------------------------------------------
- * Represents a single record in the 4mulaQuery database.
- * This structure is designed for flat binary storage on disk.
- * ----------------------------------------------------
- */
 struct Row {
-
-    // Primary Key: Unique identifier for each record
     uint32_t id;
-
-    // Fixed-width array for predictable binary offsets
-    char username[USERNAME_SIZE];
-
-    // Fixed-width array for predictable binary offsets
-    char email[EMAIL_SIZE];
-
+    char username[USERNAME_SIZE]; // 32 bytes
+    char email[EMAIL_SIZE];       // 255 bytes
 };
+// sizeof(Row) = 291 bytes
 
-#endif // End of COMMON_H Header Guard
+/* ── NODE TYPE ──────────────────────────────────────── */
+enum NodeType : uint8_t { LEAF_NODE = 0, INTERNAL_NODE = 1 };
+
+/* ── LEAF NODE LAYOUT ───────────────────────────────── */
+// Offset  0 : node_type  (1 byte)
+// Offset  1 : is_root    (1 byte)
+// Offset  2 : parent     (4 bytes)
+// Offset  6 : num_cells  (4 bytes)
+// Offset 10 : next_leaf  (4 bytes)  — linked list of leaves
+// Offset 14 : cells...
+//             cell = key(4) + Row(291) = 295 bytes
+//             max cells = (4096 - 14) / 295 = 13
+
+const uint32_t LEAF_HDR_SIZE      = 14;
+const uint32_t LEAF_KEY_SIZE      = 4;
+const uint32_t LEAF_VALUE_SIZE    = sizeof(Row);
+const uint32_t LEAF_CELL_SIZE     = LEAF_KEY_SIZE + LEAF_VALUE_SIZE; // 295
+const uint32_t LEAF_MAX_CELLS     = (PAGE_SIZE - LEAF_HDR_SIZE) / LEAF_CELL_SIZE; // 13
+const uint32_t LEAF_R_SPLIT       = (LEAF_MAX_CELLS + 1) / 2;
+const uint32_t LEAF_L_SPLIT       = (LEAF_MAX_CELLS + 1) - LEAF_R_SPLIT;
+
+/* ── INTERNAL NODE LAYOUT ───────────────────────────── */
+// Offset  0 : node_type   (1 byte)
+// Offset  1 : is_root     (1 byte)
+// Offset  2 : parent      (4 bytes)
+// Offset  6 : num_keys    (4 bytes)
+// Offset 10 : right_child (4 bytes)
+// Offset 14 : cells...
+//             cell = child(4) + key(4) = 8 bytes
+//             max keys = (4096 - 14 - 4) / 8 = 509
+
+const uint32_t INT_HDR_SIZE    = 14;
+const uint32_t INT_KEY_SIZE    = 4;
+const uint32_t INT_CHILD_SIZE  = 4;
+const uint32_t INT_CELL_SIZE   = INT_KEY_SIZE + INT_CHILD_SIZE; // 8
+const uint32_t INT_MAX_KEYS    = (PAGE_SIZE - INT_HDR_SIZE - INT_CHILD_SIZE) / INT_CELL_SIZE; // 509
+
+#endif

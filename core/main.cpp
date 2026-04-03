@@ -1,235 +1,372 @@
 /*
 ============================================================
-4mulaQuery - High-Performance Database Engine
-============================================================
+4mulaQuery — main.cpp (B+ Tree version)
 
-File Location: 
-/core/main.cpp
+Main database execution layer.
+Acts as a command interpreter between the Java server
+(API layer) and the B+ Tree storage engine.
 
-Purpose:
-Primary execution kernel for 4mulaQuery. Orchestrates 
-Input/Output operations, CSV parsing, and record lifecycle 
-management (CRUD).
+Interface unchanged — same commands as before:
+  insert,id,name,email
+  search,id
+  delete,id
+  all
 
-Architecture:
-• Command Dispatcher Pattern
-• Persistent Disk Storage (via Pager)
-• Automated Row Serialization
-
-Developed by: Abdul Qadir
+Upgrade:
+  Linear O(n) → B+ Tree O(log n)
+  13 records/leaf, 509 keys/internal node
+  Leaf linked list for fast full scan
 ============================================================
 */
 
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cstdio>
 #include <vector>
-
-#include "pager.h"
+#include "btree.h"
 #include "common.h"
 
-/**
- * ====================================================
- * CLASS: DatabaseEngine
- * ====================================================
- * Manages the high-level logic for data persistence.
- * Acts as the interface between Raw Disk Pages and 
- * the Application Layer.
- * ====================================================
- */
-class DatabaseEngine {
+/*
+------------------------------------------------------------
+DatabaseEngine
 
+Acts as the command processor for the database.
+
+Responsibilities:
+• Receive commands from stdin (Java bridge)
+• Parse commands
+• Call BTree operations
+• Format output for API response
+------------------------------------------------------------
+*/
+class DatabaseEngine {
 private:
-    Pager db;             // Disk I/O Handler
-    uint32_t row_count;   // Runtime cache of total records
+
+    /* B+ Tree storage engine instance */
+    BTree tree;
 
 public:
-    /**
-     * ----------------------------------------------------
-     * CONSTRUCTOR: DatabaseEngine()
-     * ----------------------------------------------------
-     * Automatically syncs with the physical .db file 
-     * upon initialization.
-     * ----------------------------------------------------
-     */
-    DatabaseEngine() : db("data/4mulaQuery.db"), row_count(0)  {
-        Row temp;
-        // Scan the binary file to recover the row count
-        while (db.read_row(&temp, row_count)) {
-            row_count++;
-        }
-    }
 
-    /**
-     * ----------------------------------------------------
-     * METHOD: handleInsert()
-     * ----------------------------------------------------
-     * COMMAND: insert,id,name,email
-     * Logic: Parses CSV input, converts types, and commits
-     * the binary structure to disk.
-     * ----------------------------------------------------
-     */
-    void handleInsert(std::stringstream &ss) {
-        Row row;
+    /*
+    --------------------------------------------------------
+    Constructor
+
+    Initializes database using disk file:
+        data/4mulaQuery.db
+    --------------------------------------------------------
+    */
+    DatabaseEngine() : tree("data/4mulaQuery.db") {}
+
+    /* ── INSERT ──────────────────────────────────────── */
+
+    /*
+    Handles insert command.
+
+    Input format:
+        insert,id,name,email
+
+    Example:
+        insert,1,Ali,ali@mail.com
+
+    Steps:
+      1. Parse values from stream
+      2. Convert ID to integer
+      3. Populate Row structure
+      4. Call BTree insert
+      5. Print execution result
+    */
+    void handleInsert(std::stringstream& ss) {
+
         std::string id_str, name, email;
 
-        if (std::getline(ss, id_str, ',') && 
-            std::getline(ss, name, ',')   && 
+        /* Parse CSV parameters */
+        if (std::getline(ss, id_str, ',') &&
+            std::getline(ss, name, ',')   &&
             std::getline(ss, email, ',')) {
 
             try {
-                row.id = std::stoi(id_str);
-                
-                // Safe buffer copying to prevent overflow
-                snprintf(row.username, USERNAME_SIZE, "%s", name.c_str());
-                snprintf(row.email, EMAIL_SIZE, "%s", email.c_str());
 
-                db.write_row(&row, row_count++);
-                std::cout << "Executed.\n" << std::flush;
-            } catch (...) {
-                std::cout << "Error: Invalid ID format\n" << std::flush;
+                Row row;
+
+                /* Convert ID string to integer */
+                row.id = std::stoi(id_str);
+
+                /* Copy username safely */
+                snprintf(row.username,
+                         USERNAME_SIZE,
+                         "%s",
+                         name.c_str());
+
+                /* Copy email safely */
+                snprintf(row.email,
+                         EMAIL_SIZE,
+                         "%s",
+                         email.c_str());
+
+                /* Insert into B+ tree */
+                if (tree.insert(row.id, &row))
+
+                    std::cout
+                        << "Executed.\n"
+                        << std::flush;
+
+                else
+
+                    std::cout
+                        << "Error: ID already exists.\n"
+                        << std::flush;
+            }
+
+            catch (...) {
+
+                /* Invalid numeric conversion */
+                std::cout
+                    << "Error: Invalid ID format.\n"
+                    << std::flush;
             }
         }
     }
 
-    /**
-     * ----------------------------------------------------
-     * METHOD: handleSelect()
-     * ----------------------------------------------------
-     * Logic: Scans all pages and streams record data
-     * back to the console in CSV format.
-     * ----------------------------------------------------
-     */
+    /* ── SELECT ALL ──────────────────────────────────── */
+
+    /*
+    Handles full table scan.
+
+    Command:
+        select
+        OR
+        all
+
+    Implementation:
+        Uses BTree::select_all()
+
+    Output format:
+        id,username,email
+    */
     void handleSelect() {
-        if (row_count == 0) {
-            std::cout << "Database is empty.\n" << std::flush;
+
+        auto rows = tree.select_all();
+
+        if (rows.empty()) {
+
+            std::cout
+                << "Database is empty.\n"
+                << std::flush;
+
             return;
         }
 
-        Row r;
-        for (uint32_t i = 0; i < row_count; i++) {
-            if (db.read_row(&r, i)) {
-                std::cout << r.id << "," << r.username << "," << r.email << "\n" << std::flush;
-            }
-        }
+        /* Print all rows */
+        for (auto& r : rows)
+
+            std::cout
+                << r.id << ","
+                << r.username << ","
+                << r.email
+                << "\n";
+
+        std::cout << std::flush;
     }
 
-    /**
-     * ----------------------------------------------------
-     * METHOD: handleSearch()
-     * ----------------------------------------------------
-     * COMMAND: search,id
-     * Logic: Linear search through the data pages.
-     * ----------------------------------------------------
-     */
-    void handleSearch(std::stringstream &ss) {
+    /* ── SEARCH ──────────────────────────────────────── */
+
+    /*
+    Handles search command.
+
+    Input format:
+        search,id
+
+    Example:
+        search,5
+
+    Uses B+ tree O(log n) lookup.
+    */
+    void handleSearch(std::stringstream& ss) {
+
         std::string s_id;
-        if (std::getline(ss, s_id, ',')) {
-            try {
-                uint32_t search_id = std::stoi(s_id);
-                Row r;
-                bool found = false;
 
-                for (uint32_t i = 0; i < row_count; i++) {
-                    if (db.read_row(&r, i) && r.id == search_id) {
-                        std::cout << r.id << "," << r.username << "," << r.email << "\n" << std::flush;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) std::cout << "ID " << search_id << " Not Found.\n" << std::flush;
-            } catch (...) {
-                std::cout << "Error: Search ID format\n" << std::flush;
+        if (std::getline(ss, s_id, ',')) {
+
+            try {
+
+                uint32_t id = std::stoi(s_id);
+
+                /* Lookup record in B+ tree */
+                Row* row = tree.search(id);
+
+                if (row)
+
+                    std::cout
+                        << row->id << ","
+                        << row->username << ","
+                        << row->email
+                        << "\n"
+                        << std::flush;
+
+                else
+
+                    std::cout
+                        << "ID " << id
+                        << " Not Found.\n"
+                        << std::flush;
+            }
+
+            catch (...) {
+
+                std::cout
+                    << "Error: Search ID format.\n"
+                    << std::flush;
             }
         }
     }
 
-    /**
-     * ----------------------------------------------------
-     * METHOD: handleDelete()
-     * ----------------------------------------------------
-     * COMMAND: delete,id
-     * Logic: Performs a "Filter & Rebuild" operation to 
-     * maintain data integrity on disk.
-     * ----------------------------------------------------
-     */
-    void handleDelete(std::stringstream &ss) {
+    /* ── DELETE ──────────────────────────────────────── */
+
+    /*
+    Handles delete command.
+
+    Input format:
+        delete,id
+
+    Example:
+        delete,10
+
+    Operation:
+        1. Search key
+        2. Remove record from leaf node
+        3. Shift remaining cells
+
+    Note:
+        Tree rebalancing is not implemented
+        (simple leaf deletion).
+    */
+    void handleDelete(std::stringstream& ss) {
+
         std::string s_id;
+
         if (std::getline(ss, s_id, ',')) {
+
             try {
-                uint32_t delete_id = std::stoi(s_id);
-                std::vector<Row> remaining_rows;
-                Row r;
-                bool found = false;
 
-                // Step 1: Collect survivors
-                for (uint32_t i = 0; i < row_count; i++) {
-                    if (db.read_row(&r, i)) {
-                        if (r.id != delete_id) remaining_rows.push_back(r);
-                        else found = true;
-                    }
-                }
+                uint32_t id = std::stoi(s_id);
 
-                // Step 2: Rewrite database if ID was found
-                if (found) {
-                    for (uint32_t i = 0; i < remaining_rows.size(); i++) {
-                        db.write_row(&remaining_rows[i], i);
-                    }
-                    row_count = remaining_rows.size();
-                    db.truncate(row_count);  // ← YEH ADD KARO
-                    std::cout << "Deleted ID " << delete_id << ".\n" << std::flush;
-                } else {
-                    std::cout << "ID " << delete_id << " Not Found.\n" << std::flush;
-                }
-            } catch (...) {
-                std::cout << "Error: Delete ID format\n" << std::flush;
+                if (tree.remove(id))
+
+                    std::cout
+                        << "Deleted ID "
+                        << id
+                        << ".\n"
+                        << std::flush;
+
+                else
+
+                    std::cout
+                        << "ID "
+                        << id
+                        << " Not Found.\n"
+                        << std::flush;
+            }
+
+            catch (...) {
+
+                std::cout
+                    << "Error: Delete ID format.\n"
+                    << std::flush;
             }
         }
     }
 
-    /**
-     * ----------------------------------------------------
-     * METHOD: run()
-     * ----------------------------------------------------
-     * Main Command Dispatcher loop. Interprets signals
-     * from the Spring Boot bridge.
-     * ----------------------------------------------------
-     */
+    /* ── COMMAND DISPATCHER ──────────────────────────── */
+
+    /*
+    run()
+
+    Main execution loop.
+
+    Reads commands from stdin and dispatches them
+    to the appropriate handler.
+
+    Commands supported:
+
+      insert,id,name,email
+      search,id
+      delete,id
+      select
+      all
+      exit
+    */
     void run() {
-        std::string line;
-        while (std::getline(std::cin, line)) {
-            // Trim whitespace and escape characters
-            line.erase(line.find_last_not_of(" \n\r\t") + 1);
 
-            if (line.empty() || line == "exit") break;
+        std::string line;
+
+        while (std::getline(std::cin, line)) {
+
+            /* Trim trailing whitespace */
+            line.erase(
+                line.find_last_not_of(" \n\r\t") + 1
+            );
+
+            if (line.empty() || line == "exit")
+                break;
 
             std::stringstream ss(line);
+
             std::string command;
 
-            // Resolve CSV or Single-word command
-            if (line.find(',') != std::string::npos) std::getline(ss, command, ',');
-            else ss >> command;
+            /*
+            Detect whether command uses CSV format
+            */
+            if (line.find(',') != std::string::npos)
 
-            /* Router Logic */
-            if (command == "insert") handleInsert(ss);
-            else if (command == "select" || command == "all") handleSelect();
-            else if (command == "search") handleSearch(ss);
-            else if (command == "delete") handleDelete(ss);
+                std::getline(ss, command, ',');
 
-            // Exit after one cycle for synchronized Java-to-C++ response
-            break; 
+            else
+
+                ss >> command;
+
+            /* Dispatch command */
+
+            if (command == "insert")
+
+                handleInsert(ss);
+
+            else if (command == "select"
+                  || command == "all")
+
+                handleSelect();
+
+            else if (command == "search")
+
+                handleSearch(ss);
+
+            else if (command == "delete")
+
+                handleDelete(ss);
+
+            /*
+            IMPORTANT
+
+            Only one command per process.
+
+            Required because the Java API
+            spawns a new process for each query.
+            */
+            break;
         }
     }
 };
 
-/**
- * ====================================================
- * GLOBAL ENTRY POINT
- * ====================================================
- */
+/*
+------------------------------------------------------------
+Program Entry Point
+------------------------------------------------------------
+*/
 int main() {
+
     DatabaseEngine engine;
+
+    /* Start command processor */
     engine.run();
+
     return 0;
 }
