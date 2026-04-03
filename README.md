@@ -261,6 +261,7 @@ Dashboard Analytics     → Real-time performance graphs
 - [x] OOP refactor (Single Responsibility)
 - [x] Python query analytics (analyze.py)
 - [x] Analytics Dashboard (Live charts + real-time stats)
+- [x] Backend persistent user authentication
 - [ ] Python ML Query Optimizer
 - [ ] B+ Tree indexing
 - [ ] SQL Parser (Lexer + AST)
