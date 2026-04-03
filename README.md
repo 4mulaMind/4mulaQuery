@@ -25,6 +25,8 @@ _C++ Storage Core • Java Spring Boot API • Docker Deployed_
 
 > Built to understand how databases actually work under the hood.
 
+![Analytics](assets/analytics-dashboard.png)
+
 ---
 
 ## Architecture
@@ -206,6 +208,8 @@ CommandType        → Enum: INSERT | SEARCH | DELETE | ALL
 ----
 
 ## Analytics Results
+
+![Analytics](assets/analytics-dashboard.png)
 
 | Query Distribution | Execution Time |
 |---|---|
