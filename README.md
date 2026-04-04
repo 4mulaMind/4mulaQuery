@@ -106,7 +106,7 @@ _C++ Storage Core • Java Spring Boot API • Docker Deployed_
 ## Tech Stack
 
 | Layer            | Technology                   | Purpose                          |
-| ---------------- | -----------------------------| -------------------------------- |
+| ---------------- | ---------------------------- | -------------------------------- |
 | Storage Engine   | C++ 17                       | Binary file I/O, CRUD operations |
 | API Layer        | Java 17 + Spring Boot 3.2    | REST endpoints, process bridge   |
 | Build Tool       | Maven                        | Java dependency management       |
@@ -203,23 +203,29 @@ QueryLog           → Data model for one query execution
 QueryLogger        → Saves query logs to CSV for ML
 CommandType        → Enum: INSERT | SEARCH | DELETE | ALL
 ```
-----
+
+---
+
+### Login
+
+![Login](assets/login.png)
 
 ### Dashboard
+
 ![Dashboard](assets/dashboard.png)
 
 ### Analytics
-![Analytics](assets/analytics-dashboard.png)
 
+![Analytics](assets/analytics-dashboard.png)
 
 ## Analytics Results
 
-| Query Distribution | Execution Time |
-|---|---|
+| Query Distribution                       | Execution Time                        |
+| ---------------------------------------- | ------------------------------------- |
 | ![](assets/analytics/1_distribution.png) | ![](assets/analytics/2_exec_time.png) |
 
-| Success Rate | Timeline |
-|---|---|
+| Success Rate                        | Timeline                             |
+| ----------------------------------- | ------------------------------------ |
 | ![](assets/analytics/3_success.png) | ![](assets/analytics/4_timeline.png) |
 
 ---
