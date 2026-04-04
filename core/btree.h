@@ -569,17 +569,50 @@ public:
 
         num_pages = file_size / PAGE_SIZE;
 
-        /* Fresh database */
         if (num_pages == 0) {
 
-            char* root = get_page(0);
+    // Fresh database case
+    // --------------------------------------------------
+    // When the database file is empty, we initialize the
+    // B+ Tree with a single root node.
+    //
+    // Root is created as a LEAF node at page 0.
+    // This node will store the first records inserted
+    // into the database.
+    // --------------------------------------------------
 
-            init_leaf(root);
+    char* root = get_page(0);
+    init_leaf(root);
+    set_root(root, true);
 
-            set_root(root, true);
+    // Root page is page 0 for a new database
+    root_page = 0;
+}
+else {
 
-            root_page = 0;
+    // Existing database case
+    // --------------------------------------------------
+    // If the database file already contains pages, the
+    // root node may not necessarily be page 0 (because
+    // previous insertions might have caused root splits).
+    //
+    // Therefore we scan all pages to locate the node
+    // marked as the root.
+    // --------------------------------------------------
+
+    root_page = 0;
+
+    for (uint32_t i = 0; i < num_pages; i++) {
+
+        char* p = get_page(i);
+
+        // Check root flag in node header
+        if (is_root(p)) {
+            root_page = i;
+            break;
         }
+    }
+}
     }
 
     /*
