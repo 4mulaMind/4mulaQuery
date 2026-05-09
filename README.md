@@ -105,17 +105,16 @@ _C++ Storage Core • Java Spring Boot API • Docker Deployed_
 
 ## Tech Stack
 
-| Layer            | Technology                   | Purpose                          |
-| ---------------- | ---------------------------- | -------------------------------- |
-| Storage Engine   | C++ 17                       | Binary file I/O, CRUD operations |
-| API Layer        | Java 17 + Spring Boot 3.2    | REST endpoints, process bridge   |
-| Build Tool       | Maven                        | Java dependency management       |
-| Frontend         | HTML + CSS + JavaScript      | Database UI                      |
-| Containerization | Docker + Docker Compose      | Deployment                       |
-| Hosting          | Render.com                   | Live cloud deployment            |
-| ML (Upcoming)    | Python + Scikit-learn        | Query optimization               |
-| ML Analytics     | Python + Pandas + Matplotlib | Query pattern analysis           |
-
+| Layer            | Technology                                  |           Purpose                          |
+| ---------------- | ------------------------------------------- | ------------------------------------------ |
+| Storage Engine   | C++ 17                                      | Binary file I/O, CRUD operations           |
+| API Layer        | Java 17 + Spring Boot 3.2                   | REST endpoints, process bridge             |
+| Build Tool       | Maven                                       | Java dependency management                 |
+| Frontend         | HTML + CSS + JavaScript                     | Database UI                                |
+| Containerization | Docker + Docker Compose                     | Deployment                                 |
+| Hosting          | Render.com                                  | Live cloud deployment                      |
+| ML Analytics     | Python + Pandas + Matplotlib + Scikit-learn | Query anomaly detection + pattern analysis |
+| ML Model         | Isolation Forest                            | Slow query detection, risk scoring         |
 ---
 
 ## API Endpoints
@@ -227,7 +226,16 @@ CommandType        → Enum: INSERT | SEARCH | DELETE | ALL
 | Success Rate                        | Timeline                             |
 | ----------------------------------- | ------------------------------------ |
 | ![](assets/analytics/3_success.png) | ![](assets/analytics/4_timeline.png) |
+| 
+## ML Anomaly Detection Results
 
+| Anomaly Timeline | Risk Scores |
+|---|---|
+| ![](assets/ml_analytics/1_anomaly_timeline.png) | ![](assets/ml_analytics/2_risk_scores.png) |
+
+| Health Score | Type Performance |
+|---|---|
+| ![](assets/ml_analytics/3_health_gauge.png) | ![](assets/ml_analytics/4_type_performance.png) |
 ---
 
 ## ML Query Optimizer (Upcoming)
@@ -276,10 +284,11 @@ Dashboard Analytics     → Real-time performance graphs
 - [x] Analytics Dashboard (Live charts + real-time stats)
 - [x] Backend persistent user authentication
 - [x] B+ Tree indexing — O(log n) operations
-- [ ] Python ML Query Optimizer
-- [ ] B+ Tree indexing
+- [x] Python ML Anomaly Detection (Isolation Forest)
+- [x] ML Risk Scoring per query
+- [x] Engine Health Score
 - [ ] SQL Parser (Lexer + AST)
-- [ ] Analytics Dashboard
+- [ ] ML Query Optimizer (predict slow queries)
 - [ ] Distributed version
 
 ---
