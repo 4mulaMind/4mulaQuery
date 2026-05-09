@@ -71,7 +71,7 @@ df["risk_score"] = ((raw_scores - raw_scores.min()) /
 df["risk_score"] = 100 - df["risk_score"]  # invert: high = risky
 
 # ── Health Score ─────────────────────────────────────────
-success_rate  = df["success"].mean() * 100
+success_rate = df["success"].fillna(False).mean() * 100
 anomaly_rate  = df["is_anomaly"].mean() * 100
 avg_exec      = df["execution_ms"].mean()
 max_exec      = df["execution_ms"].max()
