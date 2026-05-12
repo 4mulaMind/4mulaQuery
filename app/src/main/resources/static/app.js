@@ -247,7 +247,7 @@ async function doLogin() {
   try {
 
     // Backend login API call
-    const res  = await fetch('/api/auth/login', {
+    const res = await fetch('/api/auth/v2/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
 
@@ -323,7 +323,7 @@ async function doSignup() {
   try {
 
     // Backend register API
-    const res  = await fetch('/api/auth/register', {
+    const res = await fetch('/api/auth/v2/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
 
@@ -368,37 +368,27 @@ async function doSignup() {
 // ───────────── FORGOT PASSWORD FLOW ─────────────
 
 // Step 1: User email enter karta hai aur system OTP generate karta hai
-function sendOtp() {
-
-  // Input field se email read karo
+// Purana — LocalStorage check karta tha
+// Naya — Backend se:
+async function sendOtp() {
   const email = document.getElementById("forgotEmail").value.trim();
-
-  // Agar email empty hai to error toast show karo
   if (!email) return showToast("forgotToast", "Enter your email");
-
-  // LocalStorage se registered users load karo
-  const users = getUsers();
-
-  // Agar email kisi account se match nahi karta
-  if (!users[email])
-    return showToast("forgotToast", "No account with this email.");
-
-  // OTP reset flow ke liye email save karo
+  
+  const res = await fetch('/api/auth/v2/forgot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json();
+  if (!data.success) return showToast("forgotToast", data.message);
+  
   otpEmail = email;
-
-  // Random 4-digit OTP generate karo
-  generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
-
-  // Demo purpose ke liye OTP toast me show ho raha hai
-  showToast("forgotToast", `Your OTP: ${generatedOtp}`, "success");
-
-  // 1.2 second baad Step1 hide aur Step2 (OTP input) show
+  showToast("forgotToast", "OTP sent to your email!", "success");
   setTimeout(() => {
     document.getElementById("fStep1").style.display = "none";
     document.getElementById("fStep2").style.display = "block";
   }, 1200);
 }
-
 
 
 // ───────────── OTP INPUT AUTO-FOCUS ─────────────

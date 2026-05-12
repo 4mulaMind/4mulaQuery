@@ -1,7 +1,11 @@
 com/formulaquery/api/ApiApplication.class
+com/formulaquery/api/AuthController.class
 com/formulaquery/api/ProcessManager.class
+com/formulaquery/api/AuthService.class
 com/formulaquery/api/ApiController.class
+com/formulaquery/api/UserRepository.class
 com/formulaquery/api/QueryLogger.class
+com/formulaquery/api/User.class
 com/formulaquery/api/QueryLog.class
 com/formulaquery/api/CommandType.class
 com/formulaquery/api/WebController.class
